@@ -19,6 +19,7 @@ class Dropdown extends Positionable {
   /**
    * Creates a new instance of a dropdown.
    * @class
+   * @name Dropdown
    * @param {jQuery} element - jQuery object to make into a dropdown.
    *        Object should be of the dropdown panel, rather than its anchor.
    * @param {Object} options - Overrides to the default plugin settings.
@@ -26,6 +27,7 @@ class Dropdown extends Positionable {
   _setup(element, options) {
     this.$element = element;
     this.options = $.extend({}, Dropdown.defaults, this.$element.data(), options);
+    this.className = 'Dropdown'; // ie9 back compat
 
     // Triggers init is idempotent, just need to make sure it is initialized
     Triggers.init($);
@@ -47,15 +49,16 @@ class Dropdown extends Positionable {
   _init() {
     var $id = this.$element.attr('id');
 
-    this.$anchor = $(`[data-toggle="${$id}"]`).length ? $(`[data-toggle="${$id}"]`) : $(`[data-open="${$id}"]`);
-    this.$anchor.attr({
+    this.$anchors = $(`[data-toggle="${$id}"]`).length ? $(`[data-toggle="${$id}"]`) : $(`[data-open="${$id}"]`);
+    this.$anchors.attr({
       'aria-controls': $id,
       'data-is-focus': false,
       'data-yeti-box': $id,
       'aria-haspopup': true,
       'aria-expanded': false
-
     });
+
+    this._setCurrentAnchor(this.$anchors.first());
 
     if(this.options.parentClass){
       this.$parent = this.$element.parents('.' + this.options.parentClass);
@@ -67,7 +70,7 @@ class Dropdown extends Positionable {
       'aria-hidden': 'true',
       'data-yeti-box': $id,
       'data-resize': $id,
-      'aria-labelledby': this.$anchor[0].id || GetYoDigits(6, 'dd-anchor')
+      'aria-labelledby': this.$currentAnchor.id || GetYoDigits(6, 'dd-anchor')
     });
     super._init();
     this._events();
@@ -85,7 +88,7 @@ class Dropdown extends Positionable {
 
   _getDefaultAlignment() {
     // handle legacy float approach
-    var horizontalPosition = /float-(\S+)/.exec(this.$anchor[0].className);
+    var horizontalPosition = /float-(\S+)/.exec(this.$currentAnchor.className);
     if(horizontalPosition) {
       return horizontalPosition[1];
     }
@@ -102,7 +105,20 @@ class Dropdown extends Positionable {
    * @private
    */
   _setPosition() {
-    super._setPosition(this.$anchor, this.$element, this.$parent);
+    this.$element.removeClass(`has-position-${this.position} has-alignment-${this.alignment}`);
+    super._setPosition(this.$currentAnchor, this.$element, this.$parent);
+    this.$element.addClass(`has-position-${this.position} has-alignment-${this.alignment}`);
+  }
+
+  /**
+   * Make it a current anchor.
+   * Current anchor as the reference for the position of Dropdown panes.
+   * @param {HTML} el - DOM element of the anchor.
+   * @function
+   * @private
+   */
+  _setCurrentAnchor(el) {
+    this.$currentAnchor = $(el);
   }
 
   /**
@@ -119,22 +135,27 @@ class Dropdown extends Positionable {
       'resizeme.zf.trigger': this._setPosition.bind(this)
     });
 
+    this.$anchors.off('click.zf.trigger')
+      .on('click.zf.trigger', function() { _this._setCurrentAnchor(this); });
+
     if(this.options.hover){
-      this.$anchor.off('mouseenter.zf.dropdown mouseleave.zf.dropdown')
+      this.$anchors.off('mouseenter.zf.dropdown mouseleave.zf.dropdown')
       .on('mouseenter.zf.dropdown', function(){
+        _this._setCurrentAnchor(this);
+
         var bodyData = $('body').data();
         if(typeof(bodyData.whatinput) === 'undefined' || bodyData.whatinput === 'mouse') {
           clearTimeout(_this.timeout);
           _this.timeout = setTimeout(function(){
             _this.open();
-            _this.$anchor.data('hover', true);
+            _this.$anchors.data('hover', true);
           }, _this.options.hoverDelay);
         }
       }).on('mouseleave.zf.dropdown', function(){
         clearTimeout(_this.timeout);
         _this.timeout = setTimeout(function(){
           _this.close();
-          _this.$anchor.data('hover', false);
+          _this.$anchors.data('hover', false);
         }, _this.options.hoverDelay);
       });
       if(this.options.hoverPane){
@@ -145,19 +166,19 @@ class Dropdown extends Positionable {
               clearTimeout(_this.timeout);
               _this.timeout = setTimeout(function(){
                 _this.close();
-                _this.$anchor.data('hover', false);
+                _this.$anchors.data('hover', false);
               }, _this.options.hoverDelay);
             });
       }
     }
-    this.$anchor.add(this.$element).on('keydown.zf.dropdown', function(e) {
+    this.$anchors.add(this.$element).on('keydown.zf.dropdown', function(e) {
 
       var $target = $(this),
         visibleFocusableElements = Keyboard.findFocusable(_this.$element);
 
       Keyboard.handleKey(e, 'Dropdown', {
         open: function() {
-          if ($target.is(_this.$anchor)) {
+          if ($target.is(_this.$anchors)) {
             _this.open();
             _this.$element.attr('tabindex', -1).focus();
             e.preventDefault();
@@ -165,7 +186,7 @@ class Dropdown extends Positionable {
         },
         close: function() {
           _this.close();
-          _this.$anchor.focus();
+          _this.$anchors.focus();
         }
       });
     });
@@ -181,10 +202,10 @@ class Dropdown extends Positionable {
          _this = this;
      $body.off('click.zf.dropdown')
           .on('click.zf.dropdown', function(e){
-            if(_this.$anchor.is(e.target) || _this.$anchor.find(e.target).length) {
+            if(_this.$anchors.is(e.target) || _this.$anchors.find(e.target).length) {
               return;
             }
-            if(_this.$element.find(e.target).length) {
+            if(_this.$element.is(e.target) || _this.$element.find(e.target).length) {
               return;
             }
             _this.close();
@@ -205,7 +226,7 @@ class Dropdown extends Positionable {
      * @event Dropdown#closeme
      */
     this.$element.trigger('closeme.zf.dropdown', this.$element.attr('id'));
-    this.$anchor.addClass('hover')
+    this.$anchors.addClass('hover')
         .attr({'aria-expanded': true});
     // this.$element/*.show()*/;
 
@@ -246,7 +267,7 @@ class Dropdown extends Positionable {
     this.$element.removeClass('is-open')
         .attr({'aria-hidden': true});
 
-    this.$anchor.removeClass('hover')
+    this.$anchors.removeClass('hover')
         .attr('aria-expanded', false);
 
     /**
@@ -266,7 +287,7 @@ class Dropdown extends Positionable {
    */
   toggle() {
     if(this.$element.hasClass('is-open')){
-      if(this.$anchor.data('hover')) return;
+      if(this.$anchors.data('hover')) return;
       this.close();
     }else{
       this.open();
@@ -279,7 +300,7 @@ class Dropdown extends Positionable {
    */
   _destroy() {
     this.$element.off('.zf.trigger').hide();
-    this.$anchor.off('.zf.dropdown');
+    this.$anchors.off('.zf.dropdown');
     $(document.body).off('click.zf.dropdown');
 
   }

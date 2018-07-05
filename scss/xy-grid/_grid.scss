@@ -10,9 +10,12 @@
 ///
 /// @param {Number} $width [$grid-container] - a width to limit the container to.
 @mixin xy-grid-container(
-  $width: $grid-container
+  $width: $grid-container,
+  $padding: $grid-container-padding
 ) {
-  max-width: rem-calc($width);
+  @include xy-gutters($gutters: $padding, $gutter-type: padding);
+
+  max-width: $width;
   margin: 0 auto;
 }
 

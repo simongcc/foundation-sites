@@ -18,6 +18,7 @@ class AccordionMenu extends Plugin {
   /**
    * Creates a new instance of an accordion menu.
    * @class
+   * @name AccordionMenu
    * @fires AccordionMenu#init
    * @param {jQuery} element - jQuery object to make into an accordion menu.
    * @param {Object} options - Overrides to the default plugin settings.
@@ -25,8 +26,7 @@ class AccordionMenu extends Plugin {
   _setup(element, options) {
     this.$element = element;
     this.options = $.extend({}, AccordionMenu.defaults, this.$element.data(), options);
-
-    Nest.Feather(this.$element, 'accordion');
+    this.className = 'AccordionMenu'; // ie9 back compat
 
     this._init();
 
@@ -48,6 +48,8 @@ class AccordionMenu extends Plugin {
    * @private
    */
   _init() {
+    Nest.Feather(this.$element, 'accordion');
+
     var _this = this;
 
     this.$element.find('[data-submenu]').not('.is-active').slideUp(0);//.find('a').css('padding-left', '1rem');
@@ -64,6 +66,10 @@ class AccordionMenu extends Plugin {
           subId = $sub[0].id || GetYoDigits(6, 'acc-menu'),
           isActive = $sub.hasClass('is-active');
 
+      if(_this.options.parentLink) {
+        let $anchor = $elem.children('a');
+        $anchor.clone().prependTo($sub).wrap('<li data-is-parent-link class="is-submenu-parent-item is-submenu-item is-accordion-submenu-item"></li>');
+      }
 
       if(_this.options.submenuToggle) {
         $elem.addClass('has-submenu-toggle');
@@ -284,6 +290,7 @@ class AccordionMenu extends Plugin {
   _destroy() {
     this.$element.find('[data-submenu]').slideDown(0).css('display', '');
     this.$element.find('a').off('click.zf.accordionMenu');
+    this.$element.find('[data-is-parent-link]').detach();
 
     if(this.options.submenuToggle) {
       this.$element.find('.has-submenu-toggle').removeClass('has-submenu-toggle');
@@ -295,6 +302,13 @@ class AccordionMenu extends Plugin {
 }
 
 AccordionMenu.defaults = {
+  /**
+   * Adds the parent link to the submenu.
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  parentLink: false,
   /**
    * Amount of time to animate the opening of a submenu in ms.
    * @option
