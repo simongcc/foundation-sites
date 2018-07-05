@@ -35,7 +35,7 @@ class ResponsiveToggle extends Plugin {
    * @private
    */
   _init() {
-    var targetID = this.$element.data('responsive-toggle');
+    var targetID = this.$element.data('responsive-toggle') || this.options.responsiveToggle;
     if (!targetID) {
       console.error('Your tab bar needs an ID of a Menu as the value of data-tab-bar.');
     }
