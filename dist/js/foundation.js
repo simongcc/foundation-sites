@@ -33,9 +33,6 @@
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
 /******/
-/******/ 	// identity function for calling harmony imports with the correct context
-/******/ 	__webpack_require__.i = function(value) { return value; };
-/******/
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
@@ -63,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 36);
+/******/ 	return __webpack_require__(__webpack_require__.s = 19);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -77,9 +74,13 @@ module.exports = jQuery;
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return rtl; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return GetYoDigits; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return rtl; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return GetYoDigits; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return transitionend; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+
+
 
 
 // Core Foundation Utilities, utilized in a number of places.
@@ -87,9 +88,8 @@ module.exports = jQuery;
 /**
  * Returns a boolean for RTL support
  */
-
 function rtl() {
-  return $('html').attr('dir') === 'rtl';
+  return __WEBPACK_IMPORTED_MODULE_0_jquery___default()('html').attr('dir') === 'rtl';
 }
 
 /**
@@ -159,8 +159,8 @@ var Plugin = function () {
     _classCallCheck(this, Plugin);
 
     this._setup(element, options);
-    var pluginName = hyphenate(this.constructor.name);
-    this.uuid = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__foundation_util_core__["b" /* GetYoDigits */])(6, pluginName);
+    var pluginName = getPluginName(this);
+    this.uuid = Object(__WEBPACK_IMPORTED_MODULE_1__foundation_util_core__["a" /* GetYoDigits */])(6, pluginName);
 
     if (!this.$element.attr('data-' + pluginName)) {
       this.$element.attr('data-' + pluginName, this.uuid);
@@ -179,7 +179,7 @@ var Plugin = function () {
     key: 'destroy',
     value: function destroy() {
       this._destroy();
-      var pluginName = hyphenate(this.constructor.name);
+      var pluginName = getPluginName(this);
       this.$element.removeAttr('data-' + pluginName).removeData('zfPlugin')
       /**
        * Fires when the plugin has been destroyed.
@@ -203,191 +203,18 @@ function hyphenate(str) {
   return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
 }
 
-
-
-/***/ }),
-/* 3 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Keyboard; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_core__ = __webpack_require__(1);
-/*******************************************
- *                                         *
- * This util was created by Marius Olbertz *
- * Please thank Marius on GitHub /owlbertz *
- * or the web http://www.mariusolbertz.de/ *
- *                                         *
- ******************************************/
-
-
-
-
-
-
-var keyCodes = {
-  9: 'TAB',
-  13: 'ENTER',
-  27: 'ESCAPE',
-  32: 'SPACE',
-  35: 'END',
-  36: 'HOME',
-  37: 'ARROW_LEFT',
-  38: 'ARROW_UP',
-  39: 'ARROW_RIGHT',
-  40: 'ARROW_DOWN'
-};
-
-var commands = {};
-
-// Functions pulled out to be referenceable from internals
-function findFocusable($element) {
-  if (!$element) {
-    return false;
+function getPluginName(obj) {
+  if (typeof obj.constructor.name !== 'undefined') {
+    return hyphenate(obj.constructor.name);
+  } else {
+    return hyphenate(obj.className);
   }
-  return $element.find('a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, *[tabindex], *[contenteditable]').filter(function () {
-    if (!__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).is(':visible') || __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).attr('tabindex') < 0) {
-      return false;
-    } //only have visible elements and those that have a tabindex greater or equal 0
-    return true;
-  });
-}
-
-function parseKey(event) {
-  var key = keyCodes[event.which || event.keyCode] || String.fromCharCode(event.which).toUpperCase();
-
-  // Remove un-printable characters, e.g. for `fromCharCode` calls for CTRL only events
-  key = key.replace(/\W+/, '');
-
-  if (event.shiftKey) key = 'SHIFT_' + key;
-  if (event.ctrlKey) key = 'CTRL_' + key;
-  if (event.altKey) key = 'ALT_' + key;
-
-  // Remove trailing underscore, in case only modifiers were used (e.g. only `CTRL_ALT`)
-  key = key.replace(/_$/, '');
-
-  return key;
-}
-
-var Keyboard = {
-  keys: getKeyCodes(keyCodes),
-
-  /**
-   * Parses the (keyboard) event and returns a String that represents its key
-   * Can be used like Foundation.parseKey(event) === Foundation.keys.SPACE
-   * @param {Event} event - the event generated by the event handler
-   * @return String key - String that represents the key pressed
-   */
-  parseKey: parseKey,
-
-  /**
-   * Handles the given (keyboard) event
-   * @param {Event} event - the event generated by the event handler
-   * @param {String} component - Foundation component's name, e.g. Slider or Reveal
-   * @param {Objects} functions - collection of functions that are to be executed
-   */
-  handleKey: function (event, component, functions) {
-    var commandList = commands[component],
-        keyCode = this.parseKey(event),
-        cmds,
-        command,
-        fn;
-
-    if (!commandList) return console.warn('Component not defined!');
-
-    if (typeof commandList.ltr === 'undefined') {
-      // this component does not differentiate between ltr and rtl
-      cmds = commandList; // use plain list
-    } else {
-      // merge ltr and rtl: if document is rtl, rtl overwrites ltr and vice versa
-      if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__foundation_util_core__["a" /* rtl */])()) cmds = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, commandList.ltr, commandList.rtl);else cmds = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, commandList.rtl, commandList.ltr);
-    }
-    command = cmds[keyCode];
-
-    fn = functions[command];
-    if (fn && typeof fn === 'function') {
-      // execute function  if exists
-      var returnValue = fn.apply();
-      if (functions.handled || typeof functions.handled === 'function') {
-        // execute function when event was handled
-        functions.handled(returnValue);
-      }
-    } else {
-      if (functions.unhandled || typeof functions.unhandled === 'function') {
-        // execute function when event was not handled
-        functions.unhandled();
-      }
-    }
-  },
-
-
-  /**
-   * Finds all focusable elements within the given `$element`
-   * @param {jQuery} $element - jQuery object to search within
-   * @return {jQuery} $focusable - all focusable elements within `$element`
-   */
-
-  findFocusable: findFocusable,
-
-  /**
-   * Returns the component name name
-   * @param {Object} component - Foundation component, e.g. Slider or Reveal
-   * @return String componentName
-   */
-
-  register: function (componentName, cmds) {
-    commands[componentName] = cmds;
-  },
-
-
-  // TODO9438: These references to Keyboard need to not require global. Will 'this' work in this context?
-  //
-  /**
-   * Traps the focus in the given element.
-   * @param  {jQuery} $element  jQuery object to trap the foucs into.
-   */
-  trapFocus: function ($element) {
-    var $focusable = findFocusable($element),
-        $firstFocusable = $focusable.eq(0),
-        $lastFocusable = $focusable.eq(-1);
-
-    $element.on('keydown.zf.trapfocus', function (event) {
-      if (event.target === $lastFocusable[0] && parseKey(event) === 'TAB') {
-        event.preventDefault();
-        $firstFocusable.focus();
-      } else if (event.target === $firstFocusable[0] && parseKey(event) === 'SHIFT_TAB') {
-        event.preventDefault();
-        $lastFocusable.focus();
-      }
-    });
-  },
-
-  /**
-   * Releases the trapped focus from the given element.
-   * @param  {jQuery} $element  jQuery object to release the focus for.
-   */
-  releaseFocus: function ($element) {
-    $element.off('keydown.zf.trapfocus');
-  }
-};
-
-/*
- * Constants for easier comparing.
- * Can be used like Foundation.parseKey(event) === Foundation.keys.SPACE
- */
-function getKeyCodes(kcs) {
-  var k = {};
-  for (var kc in kcs) {
-    k[kcs[kc]] = kcs[kc];
-  }return k;
 }
 
 
 
 /***/ }),
-/* 4 */
+/* 3 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -452,7 +279,7 @@ var matchMedia = window.matchMedia || function () {
       media: media || 'all'
     };
   };
-};
+}();
 
 var MediaQuery = {
   queries: [],
@@ -466,6 +293,11 @@ var MediaQuery = {
    */
   _init: function () {
     var self = this;
+    var $meta = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('meta.foundation-mq');
+    if (!$meta.length) {
+      __WEBPACK_IMPORTED_MODULE_0_jquery___default()('<meta class="foundation-mq">').appendTo(document.head);
+    }
+
     var extractedStyles = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('.foundation-mq').css('font-family');
     var namedQueries;
 
@@ -571,7 +403,7 @@ var MediaQuery = {
   _watcher: function () {
     var _this = this;
 
-    __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).on('resize.zf.mediaquery', function () {
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).off('resize.zf.mediaquery').on('resize.zf.mediaquery', function () {
       var newSize = _this._getCurrentSize(),
           currentSize = _this.current;
 
@@ -621,6 +453,187 @@ function parseStyleToObject(str) {
   }, {});
 
   return styleObject;
+}
+
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Keyboard; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_core__ = __webpack_require__(1);
+/*******************************************
+ *                                         *
+ * This util was created by Marius Olbertz *
+ * Please thank Marius on GitHub /owlbertz *
+ * or the web http://www.mariusolbertz.de/ *
+ *                                         *
+ ******************************************/
+
+
+
+
+
+
+var keyCodes = {
+  9: 'TAB',
+  13: 'ENTER',
+  27: 'ESCAPE',
+  32: 'SPACE',
+  35: 'END',
+  36: 'HOME',
+  37: 'ARROW_LEFT',
+  38: 'ARROW_UP',
+  39: 'ARROW_RIGHT',
+  40: 'ARROW_DOWN'
+};
+
+var commands = {};
+
+// Functions pulled out to be referenceable from internals
+function findFocusable($element) {
+  if (!$element) {
+    return false;
+  }
+  return $element.find('a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, *[tabindex], *[contenteditable]').filter(function () {
+    if (!__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).is(':visible') || __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).attr('tabindex') < 0) {
+      return false;
+    } //only have visible elements and those that have a tabindex greater or equal 0
+    return true;
+  });
+}
+
+function parseKey(event) {
+  var key = keyCodes[event.which || event.keyCode] || String.fromCharCode(event.which).toUpperCase();
+
+  // Remove un-printable characters, e.g. for `fromCharCode` calls for CTRL only events
+  key = key.replace(/\W+/, '');
+
+  if (event.shiftKey) key = 'SHIFT_' + key;
+  if (event.ctrlKey) key = 'CTRL_' + key;
+  if (event.altKey) key = 'ALT_' + key;
+
+  // Remove trailing underscore, in case only modifiers were used (e.g. only `CTRL_ALT`)
+  key = key.replace(/_$/, '');
+
+  return key;
+}
+
+var Keyboard = {
+  keys: getKeyCodes(keyCodes),
+
+  /**
+   * Parses the (keyboard) event and returns a String that represents its key
+   * Can be used like Foundation.parseKey(event) === Foundation.keys.SPACE
+   * @param {Event} event - the event generated by the event handler
+   * @return String key - String that represents the key pressed
+   */
+  parseKey: parseKey,
+
+  /**
+   * Handles the given (keyboard) event
+   * @param {Event} event - the event generated by the event handler
+   * @param {String} component - Foundation component's name, e.g. Slider or Reveal
+   * @param {Objects} functions - collection of functions that are to be executed
+   */
+  handleKey: function (event, component, functions) {
+    var commandList = commands[component],
+        keyCode = this.parseKey(event),
+        cmds,
+        command,
+        fn;
+
+    if (!commandList) return console.warn('Component not defined!');
+
+    if (typeof commandList.ltr === 'undefined') {
+      // this component does not differentiate between ltr and rtl
+      cmds = commandList; // use plain list
+    } else {
+      // merge ltr and rtl: if document is rtl, rtl overwrites ltr and vice versa
+      if (Object(__WEBPACK_IMPORTED_MODULE_1__foundation_util_core__["b" /* rtl */])()) cmds = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, commandList.ltr, commandList.rtl);else cmds = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, commandList.rtl, commandList.ltr);
+    }
+    command = cmds[keyCode];
+
+    fn = functions[command];
+    if (fn && typeof fn === 'function') {
+      // execute function  if exists
+      var returnValue = fn.apply();
+      if (functions.handled || typeof functions.handled === 'function') {
+        // execute function when event was handled
+        functions.handled(returnValue);
+      }
+    } else {
+      if (functions.unhandled || typeof functions.unhandled === 'function') {
+        // execute function when event was not handled
+        functions.unhandled();
+      }
+    }
+  },
+
+
+  /**
+   * Finds all focusable elements within the given `$element`
+   * @param {jQuery} $element - jQuery object to search within
+   * @return {jQuery} $focusable - all focusable elements within `$element`
+   */
+
+  findFocusable: findFocusable,
+
+  /**
+   * Returns the component name name
+   * @param {Object} component - Foundation component, e.g. Slider or Reveal
+   * @return String componentName
+   */
+
+  register: function (componentName, cmds) {
+    commands[componentName] = cmds;
+  },
+
+
+  // TODO9438: These references to Keyboard need to not require global. Will 'this' work in this context?
+  //
+  /**
+   * Traps the focus in the given element.
+   * @param  {jQuery} $element  jQuery object to trap the foucs into.
+   */
+  trapFocus: function ($element) {
+    var $focusable = findFocusable($element),
+        $firstFocusable = $focusable.eq(0),
+        $lastFocusable = $focusable.eq(-1);
+
+    $element.on('keydown.zf.trapfocus', function (event) {
+      if (event.target === $lastFocusable[0] && parseKey(event) === 'TAB') {
+        event.preventDefault();
+        $firstFocusable.focus();
+      } else if (event.target === $firstFocusable[0] && parseKey(event) === 'SHIFT_TAB') {
+        event.preventDefault();
+        $lastFocusable.focus();
+      }
+    });
+  },
+
+  /**
+   * Releases the trapped focus from the given element.
+   * @param  {jQuery} $element  jQuery object to release the focus for.
+   */
+  releaseFocus: function ($element) {
+    $element.off('keydown.zf.trapfocus');
+  }
+};
+
+/*
+ * Constants for easier comparing.
+ * Can be used like Foundation.parseKey(event) === Foundation.keys.SPACE
+ */
+function getKeyCodes(kcs) {
+  var k = {};
+  for (var kc in kcs) {
+    k[kcs[kc]] = kcs[kc];
+  }return k;
 }
 
 
@@ -688,7 +701,7 @@ Triggers.Listeners.Basic = {
     var animation = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).data('closable');
 
     if (animation !== '') {
-      Foundation.Motion.animateOut(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this), animation, function () {
+      __WEBPACK_IMPORTED_MODULE_1__foundation_util_motion__["a" /* Motion */].animateOut(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this), animation, function () {
         __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).trigger('closed.zf');
       });
     } else {
@@ -723,7 +736,7 @@ Triggers.Initializers.addToggleListener = function ($elem) {
 // Elements with [data-closable] will respond to close.zf.trigger events.
 Triggers.Initializers.addCloseableListener = function ($elem) {
   $elem.off('close.zf.trigger', Triggers.Listeners.Basic.closeableListener);
-  $elem.on('close.zf.trigger', '[data-closeable]', Triggers.Listeners.Basic.closeableListener);
+  $elem.on('close.zf.trigger', '[data-closeable], [data-closable]', Triggers.Listeners.Basic.closeableListener);
 };
 
 // Elements with [data-toggle-focus] will respond to coming in and out of focus
@@ -763,10 +776,9 @@ Triggers.Listeners.Global = {
       _this.triggerHandler('close.zf.trigger', [_this]);
     });
   }
-};
 
-// Global, parses whole document.
-Triggers.Initializers.addClosemeListener = function (pluginName) {
+  // Global, parses whole document.
+};Triggers.Initializers.addClosemeListener = function (pluginName) {
   var yetiBoxes = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-yeti-box]'),
       plugNames = ['dropdown', 'tooltip', 'reveal'];
 
@@ -999,7 +1011,7 @@ function animate(isIn, element, animation, cb) {
   });
 
   // Clean up the animation when it finishes
-  element.one(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__foundation_util_core__["c" /* transitionend */])(element), finish);
+  element.one(Object(__WEBPACK_IMPORTED_MODULE_1__foundation_util_core__["c" /* transitionend */])(element), finish);
 
   // Hides the element (for out animations), resets the element, and runs a callback
   function finish() {
@@ -1034,19 +1046,18 @@ var Box = {
   GetDimensions: GetDimensions,
   GetOffsets: GetOffsets,
   GetExplicitOffsets: GetExplicitOffsets
-};
 
-/**
- * Compares the dimensions of an element to a container and determines collision events with container.
- * @function
- * @param {jQuery} element - jQuery object to test for collisions.
- * @param {jQuery} parent - jQuery object to use as bounding container.
- * @param {Boolean} lrOnly - set to true to check left and right values only.
- * @param {Boolean} tbOnly - set to true to check top and bottom values only.
- * @default if no parent object passed, detects collisions with `window`.
- * @returns {Boolean} - true if collision free, false if a collision in any direction.
- */
-function ImNotTouchingYou(element, parent, lrOnly, tbOnly, ignoreBottom) {
+  /**
+   * Compares the dimensions of an element to a container and determines collision events with container.
+   * @function
+   * @param {jQuery} element - jQuery object to test for collisions.
+   * @param {jQuery} parent - jQuery object to use as bounding container.
+   * @param {Boolean} lrOnly - set to true to check left and right values only.
+   * @param {Boolean} tbOnly - set to true to check top and bottom values only.
+   * @default if no parent object passed, detects collisions with `window`.
+   * @returns {Boolean} - true if collision free, false if a collision in any direction.
+   */
+};function ImNotTouchingYou(element, parent, lrOnly, tbOnly, ignoreBottom) {
   return OverlapArea(element, parent, lrOnly, tbOnly, ignoreBottom) === 0;
 };
 
@@ -1093,7 +1104,7 @@ function OverlapArea(element, parent, lrOnly, tbOnly, ignoreBottom) {
  * @returns {Object} - nested object of integer pixel values
  * TODO - if element is window, return only those values.
  */
-function GetDimensions(elem, test) {
+function GetDimensions(elem) {
   elem = elem.length ? elem[0] : elem;
 
   if (elem === window || elem === document) {
@@ -1150,9 +1161,9 @@ function GetOffsets(element, anchor, position, vOffset, hOffset, isOverflow) {
   console.log("NOTE: GetOffsets is deprecated in favor of GetExplicitOffsets and will be removed in 6.5");
   switch (position) {
     case 'top':
-      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__foundation_util_core__["a" /* rtl */])() ? GetExplicitOffsets(element, anchor, 'top', 'left', vOffset, hOffset, isOverflow) : GetExplicitOffsets(element, anchor, 'top', 'right', vOffset, hOffset, isOverflow);
+      return Object(__WEBPACK_IMPORTED_MODULE_0__foundation_util_core__["b" /* rtl */])() ? GetExplicitOffsets(element, anchor, 'top', 'left', vOffset, hOffset, isOverflow) : GetExplicitOffsets(element, anchor, 'top', 'right', vOffset, hOffset, isOverflow);
     case 'bottom':
-      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__foundation_util_core__["a" /* rtl */])() ? GetExplicitOffsets(element, anchor, 'bottom', 'left', vOffset, hOffset, isOverflow) : GetExplicitOffsets(element, anchor, 'bottom', 'right', vOffset, hOffset, isOverflow);
+      return Object(__WEBPACK_IMPORTED_MODULE_0__foundation_util_core__["b" /* rtl */])() ? GetExplicitOffsets(element, anchor, 'bottom', 'left', vOffset, hOffset, isOverflow) : GetExplicitOffsets(element, anchor, 'bottom', 'right', vOffset, hOffset, isOverflow);
     case 'center top':
       return GetExplicitOffsets(element, anchor, 'top', 'center', vOffset, hOffset, isOverflow);
     case 'center bottom':
@@ -1185,7 +1196,7 @@ function GetOffsets(element, anchor, position, vOffset, hOffset, isOverflow) {
       break;
     default:
       return {
-        left: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__foundation_util_core__["a" /* rtl */])() ? $anchorDims.offset.left - $eleDims.width + $anchorDims.width - hOffset : $anchorDims.offset.left + hOffset,
+        left: Object(__WEBPACK_IMPORTED_MODULE_0__foundation_util_core__["b" /* rtl */])() ? $anchorDims.offset.left - $eleDims.width + $anchorDims.width - hOffset : $anchorDims.offset.left + hOffset,
         top: $anchorDims.offset.top + $anchorDims.height + vOffset
       };
 
@@ -1500,7 +1511,7 @@ Touch.setupSpotSwipe = function ($) {
 Touch.setupTouchHandler = function ($) {
   $.fn.addTouch = function () {
     this.each(function (i, el) {
-      $(el).bind('touchstart touchmove touchend touchcancel', function () {
+      $(el).bind('touchstart touchmove touchend touchcancel', function (event) {
         //we pass the original event object because the jQuery event
         //object is normalized to w3c specs and does not provide the TouchList
         handleTouch(event);
@@ -1550,10 +1561,70 @@ Touch.init = function ($) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Timer; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+
+
+
+
+function Timer(elem, options, cb) {
+  var _this = this,
+      duration = options.duration,
+      //options is an object for easily adding features later.
+  nameSpace = Object.keys(elem.data())[0] || 'timer',
+      remain = -1,
+      start,
+      timer;
+
+  this.isPaused = false;
+
+  this.restart = function () {
+    remain = -1;
+    clearTimeout(timer);
+    this.start();
+  };
+
+  this.start = function () {
+    this.isPaused = false;
+    // if(!elem.data('paused')){ return false; }//maybe implement this sanity check if used for other things.
+    clearTimeout(timer);
+    remain = remain <= 0 ? duration : remain;
+    elem.data('paused', false);
+    start = Date.now();
+    timer = setTimeout(function () {
+      if (options.infinite) {
+        _this.restart(); //rerun the timer.
+      }
+      if (cb && typeof cb === 'function') {
+        cb();
+      }
+    }, remain);
+    elem.trigger('timerstart.zf.' + nameSpace);
+  };
+
+  this.pause = function () {
+    this.isPaused = true;
+    //if(elem.data('paused')){ return false; }//maybe implement this sanity check if used for other things.
+    clearTimeout(timer);
+    elem.data('paused', true);
+    var end = Date.now();
+    remain = remain - (end - start);
+    elem.trigger('timerpaused.zf.' + nameSpace);
+  };
+}
+
+
+
+/***/ }),
+/* 12 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Accordion; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_plugin__ = __webpack_require__(2);
 
@@ -1592,6 +1663,7 @@ var Accordion = function (_Plugin) {
     /**
      * Creates a new instance of an accordion.
      * @class
+     * @name Accordion
      * @fires Accordion#init
      * @param {jQuery} element - jQuery object to make into an accordion.
      * @param {Object} options - a plain object with settings to override the default options.
@@ -1600,6 +1672,7 @@ var Accordion = function (_Plugin) {
       this.$element = element;
       this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, Accordion.defaults, this.$element.data(), options);
 
+      this.className = 'Accordion'; // ie9 back compat
       this._init();
 
       __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__["a" /* Keyboard */].register('Accordion', {
@@ -1626,7 +1699,7 @@ var Accordion = function (_Plugin) {
       this.$tabs.each(function (idx, el) {
         var $el = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(el),
             $content = $el.children('[data-tab-content]'),
-            id = $content[0].id || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__foundation_util_core__["b" /* GetYoDigits */])(6, 'accordion'),
+            id = $content[0].id || Object(__WEBPACK_IMPORTED_MODULE_2__foundation_util_core__["a" /* GetYoDigits */])(6, 'accordion'),
             linkId = el.id || id + '-label';
 
         $el.find('a:first').attr({
@@ -1922,14 +1995,14 @@ Accordion.defaults = {
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return AccordionMenu; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_nest__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_util_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__foundation_plugin__ = __webpack_require__(2);
@@ -1971,6 +2044,7 @@ var AccordionMenu = function (_Plugin) {
     /**
      * Creates a new instance of an accordion menu.
      * @class
+     * @name AccordionMenu
      * @fires AccordionMenu#init
      * @param {jQuery} element - jQuery object to make into an accordion menu.
      * @param {Object} options - Overrides to the default plugin settings.
@@ -1978,8 +2052,7 @@ var AccordionMenu = function (_Plugin) {
     value: function _setup(element, options) {
       this.$element = element;
       this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, AccordionMenu.defaults, this.$element.data(), options);
-
-      __WEBPACK_IMPORTED_MODULE_2__foundation_util_nest__["a" /* Nest */].Feather(this.$element, 'accordion');
+      this.className = 'AccordionMenu'; // ie9 back compat
 
       this._init();
 
@@ -2002,6 +2075,8 @@ var AccordionMenu = function (_Plugin) {
   }, {
     key: '_init',
     value: function _init() {
+      __WEBPACK_IMPORTED_MODULE_2__foundation_util_nest__["a" /* Nest */].Feather(this.$element, 'accordion');
+
       var _this = this;
 
       this.$element.find('[data-submenu]').not('.is-active').slideUp(0); //.find('a').css('padding-left', '1rem');
@@ -2012,11 +2087,16 @@ var AccordionMenu = function (_Plugin) {
 
       this.$menuLinks = this.$element.find('.is-accordion-submenu-parent');
       this.$menuLinks.each(function () {
-        var linkId = this.id || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["b" /* GetYoDigits */])(6, 'acc-menu-link'),
+        var linkId = this.id || Object(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["a" /* GetYoDigits */])(6, 'acc-menu-link'),
             $elem = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this),
             $sub = $elem.children('[data-submenu]'),
-            subId = $sub[0].id || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["b" /* GetYoDigits */])(6, 'acc-menu'),
+            subId = $sub[0].id || Object(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["a" /* GetYoDigits */])(6, 'acc-menu'),
             isActive = $sub.hasClass('is-active');
+
+        if (_this.options.parentLink) {
+          var $anchor = $elem.children('a');
+          $anchor.clone().prependTo($sub).wrap('<li data-is-parent-link class="is-submenu-parent-item is-submenu-item is-accordion-submenu-item"></li>');
+        }
 
         if (_this.options.submenuToggle) {
           $elem.addClass('has-submenu-toggle');
@@ -2261,6 +2341,7 @@ var AccordionMenu = function (_Plugin) {
     value: function _destroy() {
       this.$element.find('[data-submenu]').slideDown(0).css('display', '');
       this.$element.find('a').off('click.zf.accordionMenu');
+      this.$element.find('[data-is-parent-link]').detach();
 
       if (this.options.submenuToggle) {
         this.$element.find('.has-submenu-toggle').removeClass('has-submenu-toggle');
@@ -2275,6 +2356,13 @@ var AccordionMenu = function (_Plugin) {
 }(__WEBPACK_IMPORTED_MODULE_4__foundation_plugin__["a" /* Plugin */]);
 
 AccordionMenu.defaults = {
+  /**
+   * Adds the parent link to the submenu.
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  parentLink: false,
   /**
    * Amount of time to animate the opening of a submenu in ms.
    * @option
@@ -2306,14 +2394,14 @@ AccordionMenu.defaults = {
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Drilldown; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_nest__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_util_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__foundation_util_box__ = __webpack_require__(7);
@@ -2358,14 +2446,14 @@ var Drilldown = function (_Plugin) {
     /**
      * Creates a new instance of a drilldown menu.
      * @class
+     * @name Drilldown
      * @param {jQuery} element - jQuery object to make into an accordion menu.
      * @param {Object} options - Overrides to the default plugin settings.
      */
     value: function _setup(element, options) {
       this.$element = element;
       this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, Drilldown.defaults, this.$element.data(), options);
-
-      __WEBPACK_IMPORTED_MODULE_2__foundation_util_nest__["a" /* Nest */].Feather(this.$element, 'drilldown');
+      this.className = 'Drilldown'; // ie9 back compat
 
       this._init();
 
@@ -2390,10 +2478,20 @@ var Drilldown = function (_Plugin) {
   }, {
     key: '_init',
     value: function _init() {
+      __WEBPACK_IMPORTED_MODULE_2__foundation_util_nest__["a" /* Nest */].Feather(this.$element, 'drilldown');
+
+      if (this.options.autoApplyClass) {
+        this.$element.addClass('drilldown');
+      }
+
+      this.$element.attr({
+        'role': 'tree',
+        'aria-multiselectable': false
+      });
       this.$submenuAnchors = this.$element.find('li.is-drilldown-submenu-parent').children('a');
-      this.$submenus = this.$submenuAnchors.parent('li').children('[data-submenu]');
-      this.$menuItems = this.$element.find('li').not('.js-drilldown-back').attr('role', 'menuitem').find('a');
-      this.$element.attr('data-mutate', this.$element.attr('data-drilldown') || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["b" /* GetYoDigits */])(6, 'drilldown'));
+      this.$submenus = this.$submenuAnchors.parent('li').children('[data-submenu]').attr('role', 'group');
+      this.$menuItems = this.$element.find('li').not('.js-drilldown-back').attr('role', 'treeitem').find('a');
+      this.$element.attr('data-mutate', this.$element.attr('data-drilldown') || Object(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["a" /* GetYoDigits */])(6, 'drilldown'));
 
       this._prepareMenu();
       this._registerEvents();
@@ -2420,13 +2518,13 @@ var Drilldown = function (_Plugin) {
         var $link = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this);
         var $sub = $link.parent();
         if (_this.options.parentLink) {
-          $link.clone().prependTo($sub.children('[data-submenu]')).wrap('<li class="is-submenu-parent-item is-submenu-item is-drilldown-submenu-item" role="menu-item"></li>');
+          $link.clone().prependTo($sub.children('[data-submenu]')).wrap('<li data-is-parent-link class="is-submenu-parent-item is-submenu-item is-drilldown-submenu-item" role="menuitem"></li>');
         }
         $link.data('savedHref', $link.attr('href')).removeAttr('href').attr('tabindex', 0);
         $link.children('[data-submenu]').attr({
           'aria-hidden': true,
           'tabindex': 0,
-          'role': 'menu'
+          'role': 'group'
         });
         _this._events($link);
       });
@@ -2573,7 +2671,7 @@ var Drilldown = function (_Plugin) {
           next: function () {
             if ($element.is(_this.$submenuAnchors)) {
               _this._show($element.parent('li'));
-              $element.parent('li').one(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["c" /* transitionend */])($element), function () {
+              $element.parent('li').one(Object(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["c" /* transitionend */])($element), function () {
                 $element.parent('li').find('ul li a').filter(_this.$menuItems).first().focus();
               });
               return true;
@@ -2581,7 +2679,7 @@ var Drilldown = function (_Plugin) {
           },
           previous: function () {
             _this._hide($element.parent('li').parent('ul'));
-            $element.parent('li').parent('ul').one(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["c" /* transitionend */])($element), function () {
+            $element.parent('li').parent('ul').one(Object(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["c" /* transitionend */])($element), function () {
               setTimeout(function () {
                 $element.parent('li').parent('ul').parent('li').children('a').first().focus();
               }, 1);
@@ -2609,7 +2707,7 @@ var Drilldown = function (_Plugin) {
             if (!$element.is(_this.$menuItems)) {
               // not menu item means back button
               _this._hide($element.parent('li').parent('ul'));
-              $element.parent('li').parent('ul').one(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["c" /* transitionend */])($element), function () {
+              $element.parent('li').parent('ul').one(Object(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["c" /* transitionend */])($element), function () {
                 setTimeout(function () {
                   $element.parent('li').parent('ul').parent('li').children('a').first().focus();
                 }, 1);
@@ -2617,7 +2715,7 @@ var Drilldown = function (_Plugin) {
               return true;
             } else if ($element.is(_this.$submenuAnchors)) {
               _this._show($element.parent('li'));
-              $element.parent('li').one(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["c" /* transitionend */])($element), function () {
+              $element.parent('li').one(Object(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["c" /* transitionend */])($element), function () {
                 $element.parent('li').find('ul li a').filter(_this.$menuItems).first().focus();
               });
               return true;
@@ -2644,7 +2742,7 @@ var Drilldown = function (_Plugin) {
     value: function _hideAll() {
       var $elem = this.$element.find('.is-drilldown-submenu.is-active').addClass('is-closing');
       if (this.options.autoHeight) this.$wrapper.css({ height: $elem.parent().closest('ul').data('calcHeight') });
-      $elem.one(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["c" /* transitionend */])($elem), function (e) {
+      $elem.one(Object(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["c" /* transitionend */])($elem), function (e) {
         $elem.removeClass('is-active is-closing');
       });
       /**
@@ -2698,6 +2796,97 @@ var Drilldown = function (_Plugin) {
     }
 
     /**
+     * Sets the CSS classes for submenu to show it.
+     * @function
+     * @private
+     * @param {jQuery} $elem - the target submenu (`ul` tag)
+     * @param {boolean} trigger - trigger drilldown event
+     */
+
+  }, {
+    key: '_setShowSubMenuClasses',
+    value: function _setShowSubMenuClasses($elem, trigger) {
+      $elem.addClass('is-active').removeClass('invisible').attr('aria-hidden', false);
+      $elem.parent('li').attr('aria-expanded', true);
+      if (trigger === true) {
+        this.$element.trigger('open.zf.drilldown', [$elem]);
+      }
+    }
+
+    /**
+     * Sets the CSS classes for submenu to hide it.
+     * @function
+     * @private
+     * @param {jQuery} $elem - the target submenu (`ul` tag)
+     * @param {boolean} trigger - trigger drilldown event
+     */
+
+  }, {
+    key: '_setHideSubMenuClasses',
+    value: function _setHideSubMenuClasses($elem, trigger) {
+      $elem.removeClass('is-active').addClass('invisible').attr('aria-hidden', true);
+      $elem.parent('li').attr('aria-expanded', false);
+      if (trigger === true) {
+        $elem.trigger('hide.zf.drilldown', [$elem]);
+      }
+    }
+
+    /**
+     * Opens a specific drilldown (sub)menu no matter which (sub)menu in it is currently visible.
+     * Compared to _show() this lets you jump into any submenu without clicking through every submenu on the way to it.
+     * @function
+     * @fires Drilldown#open
+     * @param {jQuery} $elem - the target (sub)menu (`ul` tag)
+     * @param {boolean} autoFocus - if true the first link in the target (sub)menu gets auto focused
+     */
+
+  }, {
+    key: '_showMenu',
+    value: function _showMenu($elem, autoFocus) {
+
+      var _this = this;
+
+      // Reset drilldown
+      var $expandedSubmenus = this.$element.find('li[aria-expanded="true"] > ul[data-submenu]');
+      $expandedSubmenus.each(function (index) {
+        _this._setHideSubMenuClasses(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this));
+      });
+
+      // If target menu is root, focus first link & exit
+      if ($elem.is('[data-drilldown]')) {
+        if (autoFocus === true) $elem.find('li[role="treeitem"] > a').first().focus();
+        if (this.options.autoHeight) this.$wrapper.css('height', $elem.data('calcHeight'));
+        return;
+      }
+
+      // Find all submenus on way to root incl. the element itself
+      var $submenus = $elem.children().first().parentsUntil('[data-drilldown]', '[data-submenu]');
+
+      // Open target menu and all submenus on its way to root
+      $submenus.each(function (index) {
+
+        // Update height of first child (target menu) if autoHeight option true
+        if (index === 0 && _this.options.autoHeight) {
+          _this.$wrapper.css('height', __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).data('calcHeight'));
+        }
+
+        var isLastChild = index == $submenus.length - 1;
+
+        // Add transitionsend listener to last child (root due to reverse order) to open target menu's first link
+        // Last child makes sure the event gets always triggered even if going through several menus
+        if (isLastChild === true) {
+          __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).one(Object(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["c" /* transitionend */])(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this)), function () {
+            if (autoFocus === true) {
+              $elem.find('li[role="treeitem"] > a').first().focus();
+            }
+          });
+        }
+
+        _this._setShowSubMenuClasses(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this), isLastChild);
+      });
+    }
+
+    /**
      * Opens a submenu.
      * @function
      * @fires Drilldown#open
@@ -2716,9 +2905,6 @@ var Drilldown = function (_Plugin) {
        */
       this.$element.trigger('open.zf.drilldown', [$elem]);
     }
-  }, {
-    key: '_hide',
-
 
     /**
      * Hides a submenu
@@ -2726,12 +2912,15 @@ var Drilldown = function (_Plugin) {
      * @fires Drilldown#hide
      * @param {jQuery} $elem - the current sub-menu to hide, i.e. the `ul` tag.
      */
+
+  }, {
+    key: '_hide',
     value: function _hide($elem) {
       if (this.options.autoHeight) this.$wrapper.css({ height: $elem.parent().closest('ul').data('calcHeight') });
       var _this = this;
       $elem.parent('li').attr('aria-expanded', false);
-      $elem.attr('aria-hidden', true).addClass('is-closing');
-      $elem.addClass('is-closing').one(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["c" /* transitionend */])($elem), function () {
+      $elem.attr('aria-hidden', true);
+      $elem.addClass('is-closing').one(Object(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["c" /* transitionend */])($elem), function () {
         $elem.removeClass('is-active is-closing');
         $elem.blur().addClass('invisible');
       });
@@ -2789,6 +2978,7 @@ var Drilldown = function (_Plugin) {
         __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).off('.zf.drilldown');
       });
 
+      this.$element.find('[data-is-parent-link]').detach();
       this.$submenus.removeClass('drilldown-submenu-cover-previous invisible');
 
       this.$element.find('a').each(function () {
@@ -2807,6 +2997,14 @@ var Drilldown = function (_Plugin) {
 }(__WEBPACK_IMPORTED_MODULE_5__foundation_plugin__["a" /* Plugin */]);
 
 Drilldown.defaults = {
+  /**
+   * Drilldowns depend on styles in order to function properly; in the default build of Foundation these are
+   * on the `drilldown` class. This option auto-applies this class to the drilldown upon initialization.
+   * @option
+   * @type {boolian}
+   * @default true
+   */
+  autoApplyClass: true,
   /**
    * Markup used for JS generated back button. Prepended  or appended (see backButtonPosition) to submenu lists and deleted on `destroy` method, 'js-drilldown-back' class required. Remove the backslash (`\`) if copy and pasting.
    * @option
@@ -2898,14 +3096,273 @@ Drilldown.defaults = {
 
 
 /***/ }),
-/* 14 */
+/* 15 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Positionable; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__foundation_util_box__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_plugin__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_core__ = __webpack_require__(1);
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+
+
+var POSITIONS = ['left', 'right', 'top', 'bottom'];
+var VERTICAL_ALIGNMENTS = ['top', 'bottom', 'center'];
+var HORIZONTAL_ALIGNMENTS = ['left', 'right', 'center'];
+
+var ALIGNMENTS = {
+  'left': VERTICAL_ALIGNMENTS,
+  'right': VERTICAL_ALIGNMENTS,
+  'top': HORIZONTAL_ALIGNMENTS,
+  'bottom': HORIZONTAL_ALIGNMENTS
+};
+
+function nextItem(item, array) {
+  var currentIdx = array.indexOf(item);
+  if (currentIdx === array.length - 1) {
+    return array[0];
+  } else {
+    return array[currentIdx + 1];
+  }
+}
+
+var Positionable = function (_Plugin) {
+  _inherits(Positionable, _Plugin);
+
+  function Positionable() {
+    _classCallCheck(this, Positionable);
+
+    return _possibleConstructorReturn(this, (Positionable.__proto__ || Object.getPrototypeOf(Positionable)).apply(this, arguments));
+  }
+
+  _createClass(Positionable, [{
+    key: '_init',
+
+    /**
+     * Abstract class encapsulating the tether-like explicit positioning logic
+     * including repositioning based on overlap.
+     * Expects classes to define defaults for vOffset, hOffset, position,
+     * alignment, allowOverlap, and allowBottomOverlap. They can do this by
+     * extending the defaults, or (for now recommended due to the way docs are
+     * generated) by explicitly declaring them.
+     *
+     **/
+
+    value: function _init() {
+      this.triedPositions = {};
+      this.position = this.options.position === 'auto' ? this._getDefaultPosition() : this.options.position;
+      this.alignment = this.options.alignment === 'auto' ? this._getDefaultAlignment() : this.options.alignment;
+      this.originalPosition = this.position;
+      this.originalAlignment = this.alignment;
+    }
+  }, {
+    key: '_getDefaultPosition',
+    value: function _getDefaultPosition() {
+      return 'bottom';
+    }
+  }, {
+    key: '_getDefaultAlignment',
+    value: function _getDefaultAlignment() {
+      switch (this.position) {
+        case 'bottom':
+        case 'top':
+          return Object(__WEBPACK_IMPORTED_MODULE_2__foundation_util_core__["b" /* rtl */])() ? 'right' : 'left';
+        case 'left':
+        case 'right':
+          return 'bottom';
+      }
+    }
+
+    /**
+     * Adjusts the positionable possible positions by iterating through alignments
+     * and positions.
+     * @function
+     * @private
+     */
+
+  }, {
+    key: '_reposition',
+    value: function _reposition() {
+      if (this._alignmentsExhausted(this.position)) {
+        this.position = nextItem(this.position, POSITIONS);
+        this.alignment = ALIGNMENTS[this.position][0];
+      } else {
+        this._realign();
+      }
+    }
+
+    /**
+     * Adjusts the dropdown pane possible positions by iterating through alignments
+     * on the current position.
+     * @function
+     * @private
+     */
+
+  }, {
+    key: '_realign',
+    value: function _realign() {
+      this._addTriedPosition(this.position, this.alignment);
+      this.alignment = nextItem(this.alignment, ALIGNMENTS[this.position]);
+    }
+  }, {
+    key: '_addTriedPosition',
+    value: function _addTriedPosition(position, alignment) {
+      this.triedPositions[position] = this.triedPositions[position] || [];
+      this.triedPositions[position].push(alignment);
+    }
+  }, {
+    key: '_positionsExhausted',
+    value: function _positionsExhausted() {
+      var isExhausted = true;
+      for (var i = 0; i < POSITIONS.length; i++) {
+        isExhausted = isExhausted && this._alignmentsExhausted(POSITIONS[i]);
+      }
+      return isExhausted;
+    }
+  }, {
+    key: '_alignmentsExhausted',
+    value: function _alignmentsExhausted(position) {
+      return this.triedPositions[position] && this.triedPositions[position].length == ALIGNMENTS[position].length;
+    }
+
+    // When we're trying to center, we don't want to apply offset that's going to
+    // take us just off center, so wrap around to return 0 for the appropriate
+    // offset in those alignments.  TODO: Figure out if we want to make this
+    // configurable behavior... it feels more intuitive, especially for tooltips, but
+    // it's possible someone might actually want to start from center and then nudge
+    // slightly off.
+
+  }, {
+    key: '_getVOffset',
+    value: function _getVOffset() {
+      return this.options.vOffset;
+    }
+  }, {
+    key: '_getHOffset',
+    value: function _getHOffset() {
+      return this.options.hOffset;
+    }
+  }, {
+    key: '_setPosition',
+    value: function _setPosition($anchor, $element, $parent) {
+      if ($anchor.attr('aria-expanded') === 'false') {
+        return false;
+      }
+      var $eleDims = __WEBPACK_IMPORTED_MODULE_0__foundation_util_box__["a" /* Box */].GetDimensions($element),
+          $anchorDims = __WEBPACK_IMPORTED_MODULE_0__foundation_util_box__["a" /* Box */].GetDimensions($anchor);
+
+      if (!this.options.allowOverlap) {
+        // restore original position & alignment before checking overlap
+        this.position = this.originalPosition;
+        this.alignment = this.originalAlignment;
+      }
+
+      $element.offset(__WEBPACK_IMPORTED_MODULE_0__foundation_util_box__["a" /* Box */].GetExplicitOffsets($element, $anchor, this.position, this.alignment, this._getVOffset(), this._getHOffset()));
+
+      if (!this.options.allowOverlap) {
+        var overlaps = {};
+        var minOverlap = 100000000;
+        // default coordinates to how we start, in case we can't figure out better
+        var minCoordinates = { position: this.position, alignment: this.alignment };
+        while (!this._positionsExhausted()) {
+          var overlap = __WEBPACK_IMPORTED_MODULE_0__foundation_util_box__["a" /* Box */].OverlapArea($element, $parent, false, false, this.options.allowBottomOverlap);
+          if (overlap === 0) {
+            return;
+          }
+
+          if (overlap < minOverlap) {
+            minOverlap = overlap;
+            minCoordinates = { position: this.position, alignment: this.alignment };
+          }
+
+          this._reposition();
+
+          $element.offset(__WEBPACK_IMPORTED_MODULE_0__foundation_util_box__["a" /* Box */].GetExplicitOffsets($element, $anchor, this.position, this.alignment, this._getVOffset(), this._getHOffset()));
+        }
+        // If we get through the entire loop, there was no non-overlapping
+        // position available. Pick the version with least overlap.
+        this.position = minCoordinates.position;
+        this.alignment = minCoordinates.alignment;
+        $element.offset(__WEBPACK_IMPORTED_MODULE_0__foundation_util_box__["a" /* Box */].GetExplicitOffsets($element, $anchor, this.position, this.alignment, this._getVOffset(), this._getHOffset()));
+      }
+    }
+  }]);
+
+  return Positionable;
+}(__WEBPACK_IMPORTED_MODULE_1__foundation_plugin__["a" /* Plugin */]);
+
+Positionable.defaults = {
+  /**
+   * Position of positionable relative to anchor. Can be left, right, bottom, top, or auto.
+   * @option
+   * @type {string}
+   * @default 'auto'
+   */
+  position: 'auto',
+  /**
+   * Alignment of positionable relative to anchor. Can be left, right, bottom, top, center, or auto.
+   * @option
+   * @type {string}
+   * @default 'auto'
+   */
+  alignment: 'auto',
+  /**
+   * Allow overlap of container/window. If false, dropdown positionable first
+   * try to position as defined by data-position and data-alignment, but
+   * reposition if it would cause an overflow.
+   * @option
+   * @type {boolean}
+   * @default false
+   */
+  allowOverlap: false,
+  /**
+   * Allow overlap of only the bottom of the container. This is the most common
+   * behavior for dropdowns, allowing the dropdown to extend the bottom of the
+   * screen but not otherwise influence or break out of the container.
+   * @option
+   * @type {boolean}
+   * @default true
+   */
+  allowBottomOverlap: true,
+  /**
+   * Number of pixels the positionable should be separated vertically from anchor
+   * @option
+   * @type {number}
+   * @default 0
+   */
+  vOffset: 0,
+  /**
+   * Number of pixels the positionable should be separated horizontally from anchor
+   * @option
+   * @type {number}
+   * @default 0
+   */
+  hOffset: 0
+};
+
+
+
+/***/ }),
+/* 16 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return DropdownMenu; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_nest__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_util_box__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__foundation_util_core__ = __webpack_require__(1);
@@ -2950,6 +3407,7 @@ var DropdownMenu = function (_Plugin) {
     /**
      * Creates a new instance of DropdownMenu.
      * @class
+     * @name DropdownMenu
      * @fires DropdownMenu#init
      * @param {jQuery} element - jQuery object to make into a dropdown menu.
      * @param {Object} options - Overrides to the default plugin settings.
@@ -2957,8 +3415,8 @@ var DropdownMenu = function (_Plugin) {
     value: function _setup(element, options) {
       this.$element = element;
       this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, DropdownMenu.defaults, this.$element.data(), options);
+      this.className = 'DropdownMenu'; // ie9 back compat
 
-      __WEBPACK_IMPORTED_MODULE_2__foundation_util_nest__["a" /* Nest */].Feather(this.$element, 'dropdown');
       this._init();
 
       __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__["a" /* Keyboard */].register('DropdownMenu', {
@@ -2981,6 +3439,8 @@ var DropdownMenu = function (_Plugin) {
   }, {
     key: '_init',
     value: function _init() {
+      __WEBPACK_IMPORTED_MODULE_2__foundation_util_nest__["a" /* Nest */].Feather(this.$element, 'dropdown');
+
       var subs = this.$element.find('li.is-dropdown-submenu-parent');
       this.$element.children('.is-dropdown-submenu-parent').children('.is-dropdown-submenu').addClass('first-sub');
 
@@ -2989,7 +3449,7 @@ var DropdownMenu = function (_Plugin) {
       this.$tabs.find('ul.is-dropdown-submenu').addClass(this.options.verticalClass);
 
       if (this.options.alignment === 'auto') {
-        if (this.$element.hasClass(this.options.rightClass) || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__foundation_util_core__["a" /* rtl */])() || this.$element.parents('.top-bar-right').is('*')) {
+        if (this.$element.hasClass(this.options.rightClass) || Object(__WEBPACK_IMPORTED_MODULE_4__foundation_util_core__["b" /* rtl */])() || this.$element.parents('.top-bar-right').is('*')) {
           this.options.alignment = 'right';
           subs.addClass('opens-left');
         } else {
@@ -3009,7 +3469,12 @@ var DropdownMenu = function (_Plugin) {
   }, {
     key: '_isVertical',
     value: function _isVertical() {
-      return this.$tabs.css('display') === 'block';
+      return this.$tabs.css('display') === 'block' || this.$element.css('flex-direction') === 'column';
+    }
+  }, {
+    key: '_isRtl',
+    value: function _isRtl() {
+      return this.$element.hasClass('align-right') || Object(__WEBPACK_IMPORTED_MODULE_4__foundation_util_core__["b" /* rtl */])() && !this.$element.hasClass('align-left');
     }
 
     /**
@@ -3107,10 +3572,8 @@ var DropdownMenu = function (_Plugin) {
         });
 
         var nextSibling = function () {
-          if (!$element.is(':last-child')) {
-            $nextElement.children('a:first').focus();
-            e.preventDefault();
-          }
+          $nextElement.children('a:first').focus();
+          e.preventDefault();
         },
             prevSibling = function () {
           $prevElement.children('a:first').focus();
@@ -3149,7 +3612,7 @@ var DropdownMenu = function (_Plugin) {
         if (isTab) {
           if (_this._isVertical()) {
             // vertical menu
-            if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__foundation_util_core__["a" /* rtl */])()) {
+            if (_this._isRtl()) {
               // right aligned
               __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend(functions, {
                 down: nextSibling,
@@ -3168,7 +3631,7 @@ var DropdownMenu = function (_Plugin) {
             }
           } else {
             // horizontal menu
-            if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__foundation_util_core__["a" /* rtl */])()) {
+            if (_this._isRtl()) {
               // right aligned
               __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend(functions, {
                 next: prevSibling,
@@ -3188,7 +3651,7 @@ var DropdownMenu = function (_Plugin) {
           }
         } else {
           // not tabs -> one sub
-          if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__foundation_util_core__["a" /* rtl */])()) {
+          if (_this._isRtl()) {
             // right aligned
             __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend(functions, {
               next: closeSub,
@@ -3420,258 +3883,7 @@ DropdownMenu.defaults = {
 
 
 /***/ }),
-/* 15 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Positionable; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__foundation_util_box__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_plugin__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_core__ = __webpack_require__(1);
-
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-
-
-
-
-var POSITIONS = ['left', 'right', 'top', 'bottom'];
-var VERTICAL_ALIGNMENTS = ['top', 'bottom', 'center'];
-var HORIZONTAL_ALIGNMENTS = ['left', 'right', 'center'];
-
-var ALIGNMENTS = {
-  'left': VERTICAL_ALIGNMENTS,
-  'right': VERTICAL_ALIGNMENTS,
-  'top': HORIZONTAL_ALIGNMENTS,
-  'bottom': HORIZONTAL_ALIGNMENTS
-};
-
-function nextItem(item, array) {
-  var currentIdx = array.indexOf(item);
-  if (currentIdx === array.length - 1) {
-    return array[0];
-  } else {
-    return array[currentIdx + 1];
-  }
-}
-
-var Positionable = function (_Plugin) {
-  _inherits(Positionable, _Plugin);
-
-  function Positionable() {
-    _classCallCheck(this, Positionable);
-
-    return _possibleConstructorReturn(this, (Positionable.__proto__ || Object.getPrototypeOf(Positionable)).apply(this, arguments));
-  }
-
-  _createClass(Positionable, [{
-    key: '_init',
-
-    /**
-     * Abstract class encapsulating the tether-like explicit positioning logic
-     * including repositioning based on overlap.
-     * Expects classes to define defaults for vOffset, hOffset, position,
-     * alignment, allowOverlap, and allowBottomOverlap. They can do this by
-     * extending the defaults, or (for now recommended due to the way docs are
-     * generated) by explicitly declaring them.
-     *
-     **/
-
-    value: function _init() {
-      this.triedPositions = {};
-      this.position = this.options.position === 'auto' ? this._getDefaultPosition() : this.options.position;
-      this.alignment = this.options.alignment === 'auto' ? this._getDefaultAlignment() : this.options.alignment;
-    }
-  }, {
-    key: '_getDefaultPosition',
-    value: function _getDefaultPosition() {
-      return 'bottom';
-    }
-  }, {
-    key: '_getDefaultAlignment',
-    value: function _getDefaultAlignment() {
-      switch (this.position) {
-        case 'bottom':
-        case 'top':
-          return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__foundation_util_core__["a" /* rtl */])() ? 'right' : 'left';
-        case 'left':
-        case 'right':
-          return 'bottom';
-      }
-    }
-
-    /**
-     * Adjusts the positionable possible positions by iterating through alignments
-     * and positions.
-     * @function
-     * @private
-     */
-
-  }, {
-    key: '_reposition',
-    value: function _reposition() {
-      if (this._alignmentsExhausted(this.position)) {
-        this.position = nextItem(this.position, POSITIONS);
-        this.alignment = ALIGNMENTS[this.position][0];
-      } else {
-        this._realign();
-      }
-    }
-
-    /**
-     * Adjusts the dropdown pane possible positions by iterating through alignments
-     * on the current position.
-     * @function
-     * @private
-     */
-
-  }, {
-    key: '_realign',
-    value: function _realign() {
-      this._addTriedPosition(this.position, this.alignment);
-      this.alignment = nextItem(this.alignment, ALIGNMENTS[this.position]);
-    }
-  }, {
-    key: '_addTriedPosition',
-    value: function _addTriedPosition(position, alignment) {
-      this.triedPositions[position] = this.triedPositions[position] || [];
-      this.triedPositions[position].push(alignment);
-    }
-  }, {
-    key: '_positionsExhausted',
-    value: function _positionsExhausted() {
-      var isExhausted = true;
-      for (var i = 0; i < POSITIONS.length; i++) {
-        isExhausted = isExhausted && this._alignmentsExhausted(POSITIONS[i]);
-      }
-      return isExhausted;
-    }
-  }, {
-    key: '_alignmentsExhausted',
-    value: function _alignmentsExhausted(position) {
-      return this.triedPositions[position] && this.triedPositions[position].length == ALIGNMENTS[position].length;
-    }
-
-    // When we're trying to center, we don't want to apply offset that's going to
-    // take us just off center, so wrap around to return 0 for the appropriate
-    // offset in those alignments.  TODO: Figure out if we want to make this
-    // configurable behavior... it feels more intuitive, especially for tooltips, but
-    // it's possible someone might actually want to start from center and then nudge
-    // slightly off.
-
-  }, {
-    key: '_getVOffset',
-    value: function _getVOffset() {
-      return this.options.vOffset;
-    }
-  }, {
-    key: '_getHOffset',
-    value: function _getHOffset() {
-      return this.options.hOffset;
-    }
-  }, {
-    key: '_setPosition',
-    value: function _setPosition($anchor, $element, $parent) {
-      if ($anchor.attr('aria-expanded') === 'false') {
-        return false;
-      }
-      var $eleDims = __WEBPACK_IMPORTED_MODULE_0__foundation_util_box__["a" /* Box */].GetDimensions($element),
-          $anchorDims = __WEBPACK_IMPORTED_MODULE_0__foundation_util_box__["a" /* Box */].GetDimensions($anchor);
-
-      $element.offset(__WEBPACK_IMPORTED_MODULE_0__foundation_util_box__["a" /* Box */].GetExplicitOffsets($element, $anchor, this.position, this.alignment, this._getVOffset(), this._getHOffset()));
-
-      if (!this.options.allowOverlap) {
-        var overlaps = {};
-        var minOverlap = 100000000;
-        // default coordinates to how we start, in case we can't figure out better
-        var minCoordinates = { position: this.position, alignment: this.alignment };
-        while (!this._positionsExhausted()) {
-          var overlap = __WEBPACK_IMPORTED_MODULE_0__foundation_util_box__["a" /* Box */].OverlapArea($element, $parent, false, false, this.options.allowBottomOverlap);
-          if (overlap === 0) {
-            return;
-          }
-
-          if (overlap < minOverlap) {
-            minOverlap = overlap;
-            minCoordinates = { position: this.position, alignment: this.alignment };
-          }
-
-          this._reposition();
-
-          $element.offset(__WEBPACK_IMPORTED_MODULE_0__foundation_util_box__["a" /* Box */].GetExplicitOffsets($element, $anchor, this.position, this.alignment, this._getVOffset(), this._getHOffset()));
-        }
-        // If we get through the entire loop, there was no non-overlapping
-        // position available. Pick the version with least overlap.
-        this.position = minCoordinates.position;
-        this.alignment = minCoordinates.alignment;
-        $element.offset(__WEBPACK_IMPORTED_MODULE_0__foundation_util_box__["a" /* Box */].GetExplicitOffsets($element, $anchor, this.position, this.alignment, this._getVOffset(), this._getHOffset()));
-      }
-    }
-  }]);
-
-  return Positionable;
-}(__WEBPACK_IMPORTED_MODULE_1__foundation_plugin__["a" /* Plugin */]);
-
-Positionable.defaults = {
-  /**
-   * Position of positionable relative to anchor. Can be left, right, bottom, top, or auto.
-   * @option
-   * @type {string}
-   * @default 'auto'
-   */
-  position: 'auto',
-  /**
-   * Alignment of positionable relative to anchor. Can be left, right, bottom, top, center, or auto.
-   * @option
-   * @type {string}
-   * @default 'auto'
-   */
-  alignment: 'auto',
-  /**
-   * Allow overlap of container/window. If false, dropdown positionable first
-   * try to position as defined by data-position and data-alignment, but
-   * reposition if it would cause an overflow.
-   * @option
-   * @type {boolean}
-   * @default false
-   */
-  allowOverlap: false,
-  /**
-   * Allow overlap of only the bottom of the container. This is the most common
-   * behavior for dropdowns, allowing the dropdown to extend the bottom of the
-   * screen but not otherwise influence or break out of the container.
-   * @option
-   * @type {boolean}
-   * @default true
-   */
-  allowBottomOverlap: true,
-  /**
-   * Number of pixels the positionable should be separated vertically from anchor
-   * @option
-   * @type {number}
-   * @default 0
-   */
-  vOffset: 0,
-  /**
-   * Number of pixels the positionable should be separated horizontally from anchor
-   * @option
-   * @type {number}
-   * @default 0
-   */
-  hOffset: 0
-};
-
-
-
-/***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3710,9 +3922,19 @@ var SmoothScroll = function (_Plugin) {
 
     _createClass(SmoothScroll, [{
         key: '_setup',
+
+        /**
+         * Creates a new instance of SmoothScroll.
+         * @class
+         * @name SmoothScroll
+         * @fires SmoothScroll#init
+         * @param {Object} element - jQuery object to add the trigger to.
+         * @param {Object} options - Overrides to the default plugin settings.
+         */
         value: function _setup(element, options) {
             this.$element = element;
             this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, SmoothScroll.defaults, this.$element.data(), options);
+            this.className = 'SmoothScroll'; // ie9 back compat
 
             this._init();
         }
@@ -3725,7 +3947,7 @@ var SmoothScroll = function (_Plugin) {
     }, {
         key: '_init',
         value: function _init() {
-            var id = this.$element[0].id || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__foundation_util_core__["b" /* GetYoDigits */])(6, 'smooth-scroll');
+            var id = this.$element[0].id || Object(__WEBPACK_IMPORTED_MODULE_1__foundation_util_core__["a" /* GetYoDigits */])(6, 'smooth-scroll');
             var _this = this;
             this.$element.attr({
                 'id': id
@@ -3839,14 +4061,14 @@ SmoothScroll.defaults = {
 
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Tabs; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_imageLoader__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_plugin__ = __webpack_require__(2);
 
@@ -3885,6 +4107,7 @@ var Tabs = function (_Plugin) {
     /**
      * Creates a new instance of tabs.
      * @class
+     * @name Tabs
      * @fires Tabs#init
      * @param {jQuery} element - jQuery object to make into tabs.
      * @param {Object} options - Overrides to the default plugin settings.
@@ -3892,6 +4115,7 @@ var Tabs = function (_Plugin) {
     value: function _setup(element, options) {
       this.$element = element;
       this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, Tabs.defaults, this.$element.data(), options);
+      this.className = 'Tabs'; // ie9 back compat
 
       this._init();
       __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__["a" /* Keyboard */].register('Tabs', {
@@ -3961,7 +4185,7 @@ var Tabs = function (_Plugin) {
         var $images = this.$tabContent.find('img');
 
         if ($images.length) {
-          __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__foundation_util_imageLoader__["a" /* onImagesLoaded */])($images, this._setHeight.bind(this));
+          Object(__WEBPACK_IMPORTED_MODULE_2__foundation_util_imageLoader__["a" /* onImagesLoaded */])($images, this._setHeight.bind(this));
         } else {
           this._setHeight();
         }
@@ -4382,67 +4606,14 @@ Tabs.defaults = {
 
 
 /***/ }),
-/* 18 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Timer; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-
-
-
-
-function Timer(elem, options, cb) {
-  var _this = this,
-      duration = options.duration,
-      //options is an object for easily adding features later.
-  nameSpace = Object.keys(elem.data())[0] || 'timer',
-      remain = -1,
-      start,
-      timer;
-
-  this.isPaused = false;
-
-  this.restart = function () {
-    remain = -1;
-    clearTimeout(timer);
-    this.start();
-  };
-
-  this.start = function () {
-    this.isPaused = false;
-    // if(!elem.data('paused')){ return false; }//maybe implement this sanity check if used for other things.
-    clearTimeout(timer);
-    remain = remain <= 0 ? duration : remain;
-    elem.data('paused', false);
-    start = Date.now();
-    timer = setTimeout(function () {
-      if (options.infinite) {
-        _this.restart(); //rerun the timer.
-      }
-      if (cb && typeof cb === 'function') {
-        cb();
-      }
-    }, remain);
-    elem.trigger('timerstart.zf.' + nameSpace);
-  };
-
-  this.pause = function () {
-    this.isPaused = true;
-    //if(elem.data('paused')){ return false; }//maybe implement this sanity check if used for other things.
-    clearTimeout(timer);
-    elem.data('paused', true);
-    var end = Date.now();
-    remain = remain - (end - start);
-    elem.trigger('timerpaused.zf.' + nameSpace);
-  };
-}
-
+module.exports = __webpack_require__(20);
 
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4453,34 +4624,34 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_util_box__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__foundation_util_imageLoader__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__foundation_util_keyboard__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__foundation_util_mediaQuery__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__foundation_util_keyboard__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__foundation_util_mediaQuery__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__foundation_util_motion__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__foundation_util_nest__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__foundation_util_timer__ = __webpack_require__(18);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__foundation_util_timer__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__foundation_util_touch__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__foundation_util_triggers__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__foundation_abide__ = __webpack_require__(20);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__foundation_accordion__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__foundation_accordionMenu__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__foundation_drilldown__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__foundation_dropdown__ = __webpack_require__(22);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__foundation_dropdownMenu__ = __webpack_require__(14);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__foundation_equalizer__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__foundation_interchange__ = __webpack_require__(24);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__foundation_magellan__ = __webpack_require__(25);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_21__foundation_offcanvas__ = __webpack_require__(26);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_22__foundation_orbit__ = __webpack_require__(27);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__foundation_abide__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__foundation_accordion__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__foundation_accordionMenu__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__foundation_drilldown__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__foundation_dropdown__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__foundation_dropdownMenu__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__foundation_equalizer__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__foundation_interchange__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__foundation_magellan__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_21__foundation_offcanvas__ = __webpack_require__(27);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_22__foundation_orbit__ = __webpack_require__(28);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_23__foundation_responsiveMenu__ = __webpack_require__(29);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_24__foundation_responsiveToggle__ = __webpack_require__(30);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_25__foundation_reveal__ = __webpack_require__(31);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_26__foundation_slider__ = __webpack_require__(32);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_27__foundation_smoothScroll__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_27__foundation_smoothScroll__ = __webpack_require__(17);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_28__foundation_sticky__ = __webpack_require__(33);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_29__foundation_tabs__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_29__foundation_tabs__ = __webpack_require__(18);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_30__foundation_toggler__ = __webpack_require__(34);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_31__foundation_tooltip__ = __webpack_require__(35);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_32__foundation_responsiveAccordionTabs__ = __webpack_require__(28);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_32__foundation_responsiveAccordionTabs__ = __webpack_require__(36);
 
 
 
@@ -4490,8 +4661,8 @@ __WEBPACK_IMPORTED_MODULE_1__foundation_core__["a" /* Foundation */].addToJquery
 // compatibility.
 
 
-__WEBPACK_IMPORTED_MODULE_1__foundation_core__["a" /* Foundation */].rtl = __WEBPACK_IMPORTED_MODULE_2__foundation_util_core__["a" /* rtl */];
-__WEBPACK_IMPORTED_MODULE_1__foundation_core__["a" /* Foundation */].GetYoDigits = __WEBPACK_IMPORTED_MODULE_2__foundation_util_core__["b" /* GetYoDigits */];
+__WEBPACK_IMPORTED_MODULE_1__foundation_core__["a" /* Foundation */].rtl = __WEBPACK_IMPORTED_MODULE_2__foundation_util_core__["b" /* rtl */];
+__WEBPACK_IMPORTED_MODULE_1__foundation_core__["a" /* Foundation */].GetYoDigits = __WEBPACK_IMPORTED_MODULE_2__foundation_util_core__["a" /* GetYoDigits */];
 __WEBPACK_IMPORTED_MODULE_1__foundation_core__["a" /* Foundation */].transitionend = __WEBPACK_IMPORTED_MODULE_2__foundation_util_core__["c" /* transitionend */];
 
 
@@ -4584,7 +4755,364 @@ __WEBPACK_IMPORTED_MODULE_1__foundation_core__["a" /* Foundation */].plugin(__WE
 __WEBPACK_IMPORTED_MODULE_1__foundation_core__["a" /* Foundation */].plugin(__WEBPACK_IMPORTED_MODULE_32__foundation_responsiveAccordionTabs__["a" /* ResponsiveAccordionTabs */], 'ResponsiveAccordionTabs');
 
 /***/ }),
-/* 20 */
+/* 21 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Foundation; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_core__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_mediaQuery__ = __webpack_require__(3);
+
+
+
+
+
+
+var FOUNDATION_VERSION = '6.4.4-rc1';
+
+// Global Foundation object
+// This is attached to the window, or used as a module for AMD/Browserify
+var Foundation = {
+  version: FOUNDATION_VERSION,
+
+  /**
+   * Stores initialized plugins.
+   */
+  _plugins: {},
+
+  /**
+   * Stores generated unique ids for plugin instances
+   */
+  _uuids: [],
+
+  /**
+   * Defines a Foundation plugin, adding it to the `Foundation` namespace and the list of plugins to initialize when reflowing.
+   * @param {Object} plugin - The constructor of the plugin.
+   */
+  plugin: function (plugin, name) {
+    // Object key to use when adding to global Foundation object
+    // Examples: Foundation.Reveal, Foundation.OffCanvas
+    var className = name || functionName(plugin);
+    // Object key to use when storing the plugin, also used to create the identifying data attribute for the plugin
+    // Examples: data-reveal, data-off-canvas
+    var attrName = hyphenate(className);
+
+    // Add to the Foundation object and the plugins list (for reflowing)
+    this._plugins[attrName] = this[className] = plugin;
+  },
+  /**
+   * @function
+   * Populates the _uuids array with pointers to each individual plugin instance.
+   * Adds the `zfPlugin` data-attribute to programmatically created plugins to allow use of $(selector).foundation(method) calls.
+   * Also fires the initialization event for each plugin, consolidating repetitive code.
+   * @param {Object} plugin - an instance of a plugin, usually `this` in context.
+   * @param {String} name - the name of the plugin, passed as a camelCased string.
+   * @fires Plugin#init
+   */
+  registerPlugin: function (plugin, name) {
+    var pluginName = name ? hyphenate(name) : functionName(plugin.constructor).toLowerCase();
+    plugin.uuid = Object(__WEBPACK_IMPORTED_MODULE_1__foundation_util_core__["a" /* GetYoDigits */])(6, pluginName);
+
+    if (!plugin.$element.attr('data-' + pluginName)) {
+      plugin.$element.attr('data-' + pluginName, plugin.uuid);
+    }
+    if (!plugin.$element.data('zfPlugin')) {
+      plugin.$element.data('zfPlugin', plugin);
+    }
+    /**
+     * Fires when the plugin has initialized.
+     * @event Plugin#init
+     */
+    plugin.$element.trigger('init.zf.' + pluginName);
+
+    this._uuids.push(plugin.uuid);
+
+    return;
+  },
+  /**
+   * @function
+   * Removes the plugins uuid from the _uuids array.
+   * Removes the zfPlugin data attribute, as well as the data-plugin-name attribute.
+   * Also fires the destroyed event for the plugin, consolidating repetitive code.
+   * @param {Object} plugin - an instance of a plugin, usually `this` in context.
+   * @fires Plugin#destroyed
+   */
+  unregisterPlugin: function (plugin) {
+    var pluginName = hyphenate(functionName(plugin.$element.data('zfPlugin').constructor));
+
+    this._uuids.splice(this._uuids.indexOf(plugin.uuid), 1);
+    plugin.$element.removeAttr('data-' + pluginName).removeData('zfPlugin')
+    /**
+     * Fires when the plugin has been destroyed.
+     * @event Plugin#destroyed
+     */
+    .trigger('destroyed.zf.' + pluginName);
+    for (var prop in plugin) {
+      plugin[prop] = null; //clean up script to prep for garbage collection.
+    }
+    return;
+  },
+
+  /**
+   * @function
+   * Causes one or more active plugins to re-initialize, resetting event listeners, recalculating positions, etc.
+   * @param {String} plugins - optional string of an individual plugin key, attained by calling `$(element).data('pluginName')`, or string of a plugin class i.e. `'dropdown'`
+   * @default If no argument is passed, reflow all currently active plugins.
+   */
+  reInit: function (plugins) {
+    var isJQ = plugins instanceof __WEBPACK_IMPORTED_MODULE_0_jquery___default.a;
+    try {
+      if (isJQ) {
+        plugins.each(function () {
+          __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).data('zfPlugin')._init();
+        });
+      } else {
+        var type = typeof plugins,
+            _this = this,
+            fns = {
+          'object': function (plgs) {
+            plgs.forEach(function (p) {
+              p = hyphenate(p);
+              __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-' + p + ']').foundation('_init');
+            });
+          },
+          'string': function () {
+            plugins = hyphenate(plugins);
+            __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-' + plugins + ']').foundation('_init');
+          },
+          'undefined': function () {
+            this['object'](Object.keys(_this._plugins));
+          }
+        };
+        fns[type](plugins);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      return plugins;
+    }
+  },
+
+  /**
+   * Initialize plugins on any elements within `elem` (and `elem` itself) that aren't already initialized.
+   * @param {Object} elem - jQuery object containing the element to check inside. Also checks the element itself, unless it's the `document` object.
+   * @param {String|Array} plugins - A list of plugins to initialize. Leave this out to initialize everything.
+   */
+  reflow: function (elem, plugins) {
+
+    // If plugins is undefined, just grab everything
+    if (typeof plugins === 'undefined') {
+      plugins = Object.keys(this._plugins);
+    }
+    // If plugins is a string, convert it to an array with one item
+    else if (typeof plugins === 'string') {
+        plugins = [plugins];
+      }
+
+    var _this = this;
+
+    // Iterate through each plugin
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.each(plugins, function (i, name) {
+      // Get the current plugin
+      var plugin = _this._plugins[name];
+
+      // Localize the search to all elements inside elem, as well as elem itself, unless elem === document
+      var $elem = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(elem).find('[data-' + name + ']').addBack('[data-' + name + ']');
+
+      // For each plugin found, initialize it
+      $elem.each(function () {
+        var $el = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this),
+            opts = {};
+        // Don't double-dip on plugins
+        if ($el.data('zfPlugin')) {
+          console.warn("Tried to initialize " + name + " on an element that already has a Foundation plugin.");
+          return;
+        }
+
+        if ($el.attr('data-options')) {
+          var thing = $el.attr('data-options').split(';').forEach(function (e, i) {
+            var opt = e.split(':').map(function (el) {
+              return el.trim();
+            });
+            if (opt[0]) opts[opt[0]] = parseValue(opt[1]);
+          });
+        }
+        try {
+          $el.data('zfPlugin', new plugin(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this), opts));
+        } catch (er) {
+          console.error(er);
+        } finally {
+          return;
+        }
+      });
+    });
+  },
+  getFnName: functionName,
+
+  addToJquery: function ($) {
+    // TODO: consider not making this a jQuery function
+    // TODO: need way to reflow vs. re-initialize
+    /**
+     * The Foundation jQuery method.
+     * @param {String|Array} method - An action to perform on the current jQuery object.
+     */
+    var foundation = function (method) {
+      var type = typeof method,
+          $noJS = $('.no-js');
+
+      if ($noJS.length) {
+        $noJS.removeClass('no-js');
+      }
+
+      if (type === 'undefined') {
+        //needs to initialize the Foundation object, or an individual plugin.
+        __WEBPACK_IMPORTED_MODULE_2__foundation_util_mediaQuery__["a" /* MediaQuery */]._init();
+        Foundation.reflow(this);
+      } else if (type === 'string') {
+        //an individual method to invoke on a plugin or group of plugins
+        var args = Array.prototype.slice.call(arguments, 1); //collect all the arguments, if necessary
+        var plugClass = this.data('zfPlugin'); //determine the class of plugin
+
+        if (plugClass !== undefined && plugClass[method] !== undefined) {
+          //make sure both the class and method exist
+          if (this.length === 1) {
+            //if there's only one, call it directly.
+            plugClass[method].apply(plugClass, args);
+          } else {
+            this.each(function (i, el) {
+              //otherwise loop through the jQuery collection and invoke the method on each
+              plugClass[method].apply($(el).data('zfPlugin'), args);
+            });
+          }
+        } else {
+          //error for no class or no method
+          throw new ReferenceError("We're sorry, '" + method + "' is not an available method for " + (plugClass ? functionName(plugClass) : 'this element') + '.');
+        }
+      } else {
+        //error for invalid argument type
+        throw new TypeError('We\'re sorry, ' + type + ' is not a valid parameter. You must use a string representing the method you wish to invoke.');
+      }
+      return this;
+    };
+    $.fn.foundation = foundation;
+    return $;
+  }
+};
+
+Foundation.util = {
+  /**
+   * Function for applying a debounce effect to a function call.
+   * @function
+   * @param {Function} func - Function to be called at end of timeout.
+   * @param {Number} delay - Time in ms to delay the call of `func`.
+   * @returns function
+   */
+  throttle: function (func, delay) {
+    var timer = null;
+
+    return function () {
+      var context = this,
+          args = arguments;
+
+      if (timer === null) {
+        timer = setTimeout(function () {
+          func.apply(context, args);
+          timer = null;
+        }, delay);
+      }
+    };
+  }
+};
+
+window.Foundation = Foundation;
+
+// Polyfill for requestAnimationFrame
+(function () {
+  if (!Date.now || !window.Date.now) window.Date.now = Date.now = function () {
+    return new Date().getTime();
+  };
+
+  var vendors = ['webkit', 'moz'];
+  for (var i = 0; i < vendors.length && !window.requestAnimationFrame; ++i) {
+    var vp = vendors[i];
+    window.requestAnimationFrame = window[vp + 'RequestAnimationFrame'];
+    window.cancelAnimationFrame = window[vp + 'CancelAnimationFrame'] || window[vp + 'CancelRequestAnimationFrame'];
+  }
+  if (/iP(ad|hone|od).*OS 6/.test(window.navigator.userAgent) || !window.requestAnimationFrame || !window.cancelAnimationFrame) {
+    var lastTime = 0;
+    window.requestAnimationFrame = function (callback) {
+      var now = Date.now();
+      var nextTime = Math.max(lastTime + 16, now);
+      return setTimeout(function () {
+        callback(lastTime = nextTime);
+      }, nextTime - now);
+    };
+    window.cancelAnimationFrame = clearTimeout;
+  }
+  /**
+   * Polyfill for performance.now, required by rAF
+   */
+  if (!window.performance || !window.performance.now) {
+    window.performance = {
+      start: Date.now(),
+      now: function () {
+        return Date.now() - this.start;
+      }
+    };
+  }
+})();
+if (!Function.prototype.bind) {
+  Function.prototype.bind = function (oThis) {
+    if (typeof this !== 'function') {
+      // closest thing possible to the ECMAScript 5
+      // internal IsCallable function
+      throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
+    }
+
+    var aArgs = Array.prototype.slice.call(arguments, 1),
+        fToBind = this,
+        fNOP = function () {},
+        fBound = function () {
+      return fToBind.apply(this instanceof fNOP ? this : oThis, aArgs.concat(Array.prototype.slice.call(arguments)));
+    };
+
+    if (this.prototype) {
+      // native functions don't have a prototype
+      fNOP.prototype = this.prototype;
+    }
+    fBound.prototype = new fNOP();
+
+    return fBound;
+  };
+}
+// Polyfill to get the name of a function in IE9
+function functionName(fn) {
+  if (Function.prototype.name === undefined) {
+    var funcNameRegex = /function\s([^(]{1,})\(/;
+    var results = funcNameRegex.exec(fn.toString());
+    return results && results.length > 1 ? results[1].trim() : "";
+  } else if (fn.prototype === undefined) {
+    return fn.constructor.name;
+  } else {
+    return fn.prototype.constructor.name;
+  }
+}
+function parseValue(str) {
+  if ('true' === str) return true;else if ('false' === str) return false;else if (!isNaN(str * 1)) return parseFloat(str);
+  return str;
+}
+// Convert PascalCase to kebab-case
+// Thank you: http://stackoverflow.com/a/8955580
+function hyphenate(str) {
+  return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+}
+
+
+
+/***/ }),
+/* 22 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4625,6 +5153,7 @@ var Abide = function (_Plugin) {
     /**
      * Creates a new instance of Abide.
      * @class
+     * @name Abide
      * @fires Abide#init
      * @param {Object} element - jQuery object to add the trigger to.
      * @param {Object} options - Overrides to the default plugin settings.
@@ -4633,8 +5162,9 @@ var Abide = function (_Plugin) {
       var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
       this.$element = element;
-      this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, Abide.defaults, this.$element.data(), options);
+      this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend(true, {}, Abide.defaults, this.$element.data(), options);
 
+      this.className = 'Abide'; // ie9 back compat
       this._init();
     }
 
@@ -5196,7 +5726,7 @@ Abide.defaults = {
     number: /^[-+]?\d*(?:[\.\,]\d+)?$/,
 
     // amex, visa, diners
-    card: /^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\d{3})\d{11})$/,
+    card: /^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|(?:222[1-9]|2[3-6][0-9]{2}|27[0-1][0-9]|2720)[0-9]{12}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\d{3})\d{11})$/,
     cvv: /^([0-9]){3,4}$/,
 
     // http://www.whatwg.org/specs/web-apps/current-work/multipage/states-of-the-type-attribute.html#valid-e-mail-address
@@ -5246,372 +5776,14 @@ Abide.defaults = {
 
 
 /***/ }),
-/* 21 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Foundation; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_core__ = __webpack_require__(1);
-
-
-
-
-var FOUNDATION_VERSION = '6.4.0-rc2';
-
-// Global Foundation object
-// This is attached to the window, or used as a module for AMD/Browserify
-var Foundation = {
-  version: FOUNDATION_VERSION,
-
-  /**
-   * Stores initialized plugins.
-   */
-  _plugins: {},
-
-  /**
-   * Stores generated unique ids for plugin instances
-   */
-  _uuids: [],
-
-  /**
-   * Defines a Foundation plugin, adding it to the `Foundation` namespace and the list of plugins to initialize when reflowing.
-   * @param {Object} plugin - The constructor of the plugin.
-   */
-  plugin: function (plugin, name) {
-    // Object key to use when adding to global Foundation object
-    // Examples: Foundation.Reveal, Foundation.OffCanvas
-    var className = name || functionName(plugin);
-    // Object key to use when storing the plugin, also used to create the identifying data attribute for the plugin
-    // Examples: data-reveal, data-off-canvas
-    var attrName = hyphenate(className);
-
-    // Add to the Foundation object and the plugins list (for reflowing)
-    this._plugins[attrName] = this[className] = plugin;
-  },
-  /**
-   * @function
-   * Populates the _uuids array with pointers to each individual plugin instance.
-   * Adds the `zfPlugin` data-attribute to programmatically created plugins to allow use of $(selector).foundation(method) calls.
-   * Also fires the initialization event for each plugin, consolidating repetitive code.
-   * @param {Object} plugin - an instance of a plugin, usually `this` in context.
-   * @param {String} name - the name of the plugin, passed as a camelCased string.
-   * @fires Plugin#init
-   */
-  registerPlugin: function (plugin, name) {
-    var pluginName = name ? hyphenate(name) : functionName(plugin.constructor).toLowerCase();
-    plugin.uuid = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__foundation_util_core__["b" /* GetYoDigits */])(6, pluginName);
-
-    if (!plugin.$element.attr('data-' + pluginName)) {
-      plugin.$element.attr('data-' + pluginName, plugin.uuid);
-    }
-    if (!plugin.$element.data('zfPlugin')) {
-      plugin.$element.data('zfPlugin', plugin);
-    }
-    /**
-     * Fires when the plugin has initialized.
-     * @event Plugin#init
-     */
-    plugin.$element.trigger('init.zf.' + pluginName);
-
-    this._uuids.push(plugin.uuid);
-
-    return;
-  },
-  /**
-   * @function
-   * Removes the plugins uuid from the _uuids array.
-   * Removes the zfPlugin data attribute, as well as the data-plugin-name attribute.
-   * Also fires the destroyed event for the plugin, consolidating repetitive code.
-   * @param {Object} plugin - an instance of a plugin, usually `this` in context.
-   * @fires Plugin#destroyed
-   */
-  unregisterPlugin: function (plugin) {
-    var pluginName = hyphenate(functionName(plugin.$element.data('zfPlugin').constructor));
-
-    this._uuids.splice(this._uuids.indexOf(plugin.uuid), 1);
-    plugin.$element.removeAttr('data-' + pluginName).removeData('zfPlugin')
-    /**
-     * Fires when the plugin has been destroyed.
-     * @event Plugin#destroyed
-     */
-    .trigger('destroyed.zf.' + pluginName);
-    for (var prop in plugin) {
-      plugin[prop] = null; //clean up script to prep for garbage collection.
-    }
-    return;
-  },
-
-  /**
-   * @function
-   * Causes one or more active plugins to re-initialize, resetting event listeners, recalculating positions, etc.
-   * @param {String} plugins - optional string of an individual plugin key, attained by calling `$(element).data('pluginName')`, or string of a plugin class i.e. `'dropdown'`
-   * @default If no argument is passed, reflow all currently active plugins.
-   */
-  reInit: function (plugins) {
-    var isJQ = plugins instanceof __WEBPACK_IMPORTED_MODULE_0_jquery___default.a;
-    try {
-      if (isJQ) {
-        plugins.each(function () {
-          __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).data('zfPlugin')._init();
-        });
-      } else {
-        var type = typeof plugins,
-            _this = this,
-            fns = {
-          'object': function (plgs) {
-            plgs.forEach(function (p) {
-              p = hyphenate(p);
-              __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-' + p + ']').foundation('_init');
-            });
-          },
-          'string': function () {
-            plugins = hyphenate(plugins);
-            __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-' + plugins + ']').foundation('_init');
-          },
-          'undefined': function () {
-            this['object'](Object.keys(_this._plugins));
-          }
-        };
-        fns[type](plugins);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      return plugins;
-    }
-  },
-
-  /**
-   * Initialize plugins on any elements within `elem` (and `elem` itself) that aren't already initialized.
-   * @param {Object} elem - jQuery object containing the element to check inside. Also checks the element itself, unless it's the `document` object.
-   * @param {String|Array} plugins - A list of plugins to initialize. Leave this out to initialize everything.
-   */
-  reflow: function (elem, plugins) {
-
-    // If plugins is undefined, just grab everything
-    if (typeof plugins === 'undefined') {
-      plugins = Object.keys(this._plugins);
-    }
-    // If plugins is a string, convert it to an array with one item
-    else if (typeof plugins === 'string') {
-        plugins = [plugins];
-      }
-
-    var _this = this;
-
-    // Iterate through each plugin
-    __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.each(plugins, function (i, name) {
-      // Get the current plugin
-      var plugin = _this._plugins[name];
-
-      // Localize the search to all elements inside elem, as well as elem itself, unless elem === document
-      var $elem = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(elem).find('[data-' + name + ']').addBack('[data-' + name + ']');
-
-      // For each plugin found, initialize it
-      $elem.each(function () {
-        var $el = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this),
-            opts = {};
-        // Don't double-dip on plugins
-        if ($el.data('zfPlugin')) {
-          console.warn("Tried to initialize " + name + " on an element that already has a Foundation plugin.");
-          return;
-        }
-
-        if ($el.attr('data-options')) {
-          var thing = $el.attr('data-options').split(';').forEach(function (e, i) {
-            var opt = e.split(':').map(function (el) {
-              return el.trim();
-            });
-            if (opt[0]) opts[opt[0]] = parseValue(opt[1]);
-          });
-        }
-        try {
-          $el.data('zfPlugin', new plugin(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this), opts));
-        } catch (er) {
-          console.error(er);
-        } finally {
-          return;
-        }
-      });
-    });
-  },
-  getFnName: functionName,
-
-  addToJquery: function ($) {
-    // TODO: consider not making this a jQuery function
-    // TODO: need way to reflow vs. re-initialize
-    /**
-     * The Foundation jQuery method.
-     * @param {String|Array} method - An action to perform on the current jQuery object.
-     */
-    var foundation = function (method) {
-      var type = typeof method,
-          $meta = $('meta.foundation-mq'),
-          $noJS = $('.no-js');
-
-      if (!$meta.length) {
-        $('<meta class="foundation-mq">').appendTo(document.head);
-      }
-      if ($noJS.length) {
-        $noJS.removeClass('no-js');
-      }
-
-      if (type === 'undefined') {
-        //needs to initialize the Foundation object, or an individual plugin.
-        Foundation.MediaQuery._init();
-        Foundation.reflow(this);
-      } else if (type === 'string') {
-        //an individual method to invoke on a plugin or group of plugins
-        var args = Array.prototype.slice.call(arguments, 1); //collect all the arguments, if necessary
-        var plugClass = this.data('zfPlugin'); //determine the class of plugin
-
-        if (plugClass !== undefined && plugClass[method] !== undefined) {
-          //make sure both the class and method exist
-          if (this.length === 1) {
-            //if there's only one, call it directly.
-            plugClass[method].apply(plugClass, args);
-          } else {
-            this.each(function (i, el) {
-              //otherwise loop through the jQuery collection and invoke the method on each
-              plugClass[method].apply($(el).data('zfPlugin'), args);
-            });
-          }
-        } else {
-          //error for no class or no method
-          throw new ReferenceError("We're sorry, '" + method + "' is not an available method for " + (plugClass ? functionName(plugClass) : 'this element') + '.');
-        }
-      } else {
-        //error for invalid argument type
-        throw new TypeError('We\'re sorry, ' + type + ' is not a valid parameter. You must use a string representing the method you wish to invoke.');
-      }
-      return this;
-    };
-    $.fn.foundation = foundation;
-    return $;
-  }
-};
-
-Foundation.util = {
-  /**
-   * Function for applying a debounce effect to a function call.
-   * @function
-   * @param {Function} func - Function to be called at end of timeout.
-   * @param {Number} delay - Time in ms to delay the call of `func`.
-   * @returns function
-   */
-  throttle: function (func, delay) {
-    var timer = null;
-
-    return function () {
-      var context = this,
-          args = arguments;
-
-      if (timer === null) {
-        timer = setTimeout(function () {
-          func.apply(context, args);
-          timer = null;
-        }, delay);
-      }
-    };
-  }
-};
-
-window.Foundation = Foundation;
-
-// Polyfill for requestAnimationFrame
-(function () {
-  if (!Date.now || !window.Date.now) window.Date.now = Date.now = function () {
-    return new Date().getTime();
-  };
-
-  var vendors = ['webkit', 'moz'];
-  for (var i = 0; i < vendors.length && !window.requestAnimationFrame; ++i) {
-    var vp = vendors[i];
-    window.requestAnimationFrame = window[vp + 'RequestAnimationFrame'];
-    window.cancelAnimationFrame = window[vp + 'CancelAnimationFrame'] || window[vp + 'CancelRequestAnimationFrame'];
-  }
-  if (/iP(ad|hone|od).*OS 6/.test(window.navigator.userAgent) || !window.requestAnimationFrame || !window.cancelAnimationFrame) {
-    var lastTime = 0;
-    window.requestAnimationFrame = function (callback) {
-      var now = Date.now();
-      var nextTime = Math.max(lastTime + 16, now);
-      return setTimeout(function () {
-        callback(lastTime = nextTime);
-      }, nextTime - now);
-    };
-    window.cancelAnimationFrame = clearTimeout;
-  }
-  /**
-   * Polyfill for performance.now, required by rAF
-   */
-  if (!window.performance || !window.performance.now) {
-    window.performance = {
-      start: Date.now(),
-      now: function () {
-        return Date.now() - this.start;
-      }
-    };
-  }
-})();
-if (!Function.prototype.bind) {
-  Function.prototype.bind = function (oThis) {
-    if (typeof this !== 'function') {
-      // closest thing possible to the ECMAScript 5
-      // internal IsCallable function
-      throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
-    }
-
-    var aArgs = Array.prototype.slice.call(arguments, 1),
-        fToBind = this,
-        fNOP = function () {},
-        fBound = function () {
-      return fToBind.apply(this instanceof fNOP ? this : oThis, aArgs.concat(Array.prototype.slice.call(arguments)));
-    };
-
-    if (this.prototype) {
-      // native functions don't have a prototype
-      fNOP.prototype = this.prototype;
-    }
-    fBound.prototype = new fNOP();
-
-    return fBound;
-  };
-}
-// Polyfill to get the name of a function in IE9
-function functionName(fn) {
-  if (Function.prototype.name === undefined) {
-    var funcNameRegex = /function\s([^(]{1,})\(/;
-    var results = funcNameRegex.exec(fn.toString());
-    return results && results.length > 1 ? results[1].trim() : "";
-  } else if (fn.prototype === undefined) {
-    return fn.constructor.name;
-  } else {
-    return fn.prototype.constructor.name;
-  }
-}
-function parseValue(str) {
-  if ('true' === str) return true;else if ('false' === str) return false;else if (!isNaN(str * 1)) return parseFloat(str);
-  return str;
-}
-// Convert PascalCase to kebab-case
-// Thank you: http://stackoverflow.com/a/8955580
-function hyphenate(str) {
-  return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-}
-
-
-
-/***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Dropdown; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_positionable__ = __webpack_require__(15);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__foundation_util_triggers__ = __webpack_require__(5);
@@ -5657,6 +5829,7 @@ var Dropdown = function (_Positionable) {
     /**
      * Creates a new instance of a dropdown.
      * @class
+     * @name Dropdown
      * @param {jQuery} element - jQuery object to make into a dropdown.
      *        Object should be of the dropdown panel, rather than its anchor.
      * @param {Object} options - Overrides to the default plugin settings.
@@ -5664,6 +5837,7 @@ var Dropdown = function (_Positionable) {
     value: function _setup(element, options) {
       this.$element = element;
       this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, Dropdown.defaults, this.$element.data(), options);
+      this.className = 'Dropdown'; // ie9 back compat
 
       // Triggers init is idempotent, just need to make sure it is initialized
       __WEBPACK_IMPORTED_MODULE_4__foundation_util_triggers__["a" /* Triggers */].init(__WEBPACK_IMPORTED_MODULE_0_jquery___default.a);
@@ -5688,15 +5862,16 @@ var Dropdown = function (_Positionable) {
     value: function _init() {
       var $id = this.$element.attr('id');
 
-      this.$anchor = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-toggle="' + $id + '"]').length ? __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-toggle="' + $id + '"]') : __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-open="' + $id + '"]');
-      this.$anchor.attr({
+      this.$anchors = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-toggle="' + $id + '"]').length ? __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-toggle="' + $id + '"]') : __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-open="' + $id + '"]');
+      this.$anchors.attr({
         'aria-controls': $id,
         'data-is-focus': false,
         'data-yeti-box': $id,
         'aria-haspopup': true,
         'aria-expanded': false
-
       });
+
+      this._setCurrentAnchor(this.$anchors.first());
 
       if (this.options.parentClass) {
         this.$parent = this.$element.parents('.' + this.options.parentClass);
@@ -5708,7 +5883,7 @@ var Dropdown = function (_Positionable) {
         'aria-hidden': 'true',
         'data-yeti-box': $id,
         'data-resize': $id,
-        'aria-labelledby': this.$anchor[0].id || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__foundation_util_core__["b" /* GetYoDigits */])(6, 'dd-anchor')
+        'aria-labelledby': this.$currentAnchor.id || Object(__WEBPACK_IMPORTED_MODULE_2__foundation_util_core__["a" /* GetYoDigits */])(6, 'dd-anchor')
       });
       _get(Dropdown.prototype.__proto__ || Object.getPrototypeOf(Dropdown.prototype), '_init', this).call(this);
       this._events();
@@ -5728,7 +5903,7 @@ var Dropdown = function (_Positionable) {
     key: '_getDefaultAlignment',
     value: function _getDefaultAlignment() {
       // handle legacy float approach
-      var horizontalPosition = /float-(\S+)/.exec(this.$anchor[0].className);
+      var horizontalPosition = /float-(\S+)/.exec(this.$currentAnchor.className);
       if (horizontalPosition) {
         return horizontalPosition[1];
       }
@@ -5746,7 +5921,23 @@ var Dropdown = function (_Positionable) {
   }, {
     key: '_setPosition',
     value: function _setPosition() {
-      _get(Dropdown.prototype.__proto__ || Object.getPrototypeOf(Dropdown.prototype), '_setPosition', this).call(this, this.$anchor, this.$element, this.$parent);
+      this.$element.removeClass('has-position-' + this.position + ' has-alignment-' + this.alignment);
+      _get(Dropdown.prototype.__proto__ || Object.getPrototypeOf(Dropdown.prototype), '_setPosition', this).call(this, this.$currentAnchor, this.$element, this.$parent);
+      this.$element.addClass('has-position-' + this.position + ' has-alignment-' + this.alignment);
+    }
+
+    /**
+     * Make it a current anchor.
+     * Current anchor as the reference for the position of Dropdown panes.
+     * @param {HTML} el - DOM element of the anchor.
+     * @function
+     * @private
+     */
+
+  }, {
+    key: '_setCurrentAnchor',
+    value: function _setCurrentAnchor(el) {
+      this.$currentAnchor = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(el);
     }
 
     /**
@@ -5766,21 +5957,27 @@ var Dropdown = function (_Positionable) {
         'resizeme.zf.trigger': this._setPosition.bind(this)
       });
 
+      this.$anchors.off('click.zf.trigger').on('click.zf.trigger', function () {
+        _this._setCurrentAnchor(this);
+      });
+
       if (this.options.hover) {
-        this.$anchor.off('mouseenter.zf.dropdown mouseleave.zf.dropdown').on('mouseenter.zf.dropdown', function () {
+        this.$anchors.off('mouseenter.zf.dropdown mouseleave.zf.dropdown').on('mouseenter.zf.dropdown', function () {
+          _this._setCurrentAnchor(this);
+
           var bodyData = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('body').data();
           if (typeof bodyData.whatinput === 'undefined' || bodyData.whatinput === 'mouse') {
             clearTimeout(_this.timeout);
             _this.timeout = setTimeout(function () {
               _this.open();
-              _this.$anchor.data('hover', true);
+              _this.$anchors.data('hover', true);
             }, _this.options.hoverDelay);
           }
         }).on('mouseleave.zf.dropdown', function () {
           clearTimeout(_this.timeout);
           _this.timeout = setTimeout(function () {
             _this.close();
-            _this.$anchor.data('hover', false);
+            _this.$anchors.data('hover', false);
           }, _this.options.hoverDelay);
         });
         if (this.options.hoverPane) {
@@ -5790,19 +5987,19 @@ var Dropdown = function (_Positionable) {
             clearTimeout(_this.timeout);
             _this.timeout = setTimeout(function () {
               _this.close();
-              _this.$anchor.data('hover', false);
+              _this.$anchors.data('hover', false);
             }, _this.options.hoverDelay);
           });
         }
       }
-      this.$anchor.add(this.$element).on('keydown.zf.dropdown', function (e) {
+      this.$anchors.add(this.$element).on('keydown.zf.dropdown', function (e) {
 
         var $target = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this),
             visibleFocusableElements = __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__["a" /* Keyboard */].findFocusable(_this.$element);
 
         __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__["a" /* Keyboard */].handleKey(e, 'Dropdown', {
           open: function () {
-            if ($target.is(_this.$anchor)) {
+            if ($target.is(_this.$anchors)) {
               _this.open();
               _this.$element.attr('tabindex', -1).focus();
               e.preventDefault();
@@ -5810,7 +6007,7 @@ var Dropdown = function (_Positionable) {
           },
           close: function () {
             _this.close();
-            _this.$anchor.focus();
+            _this.$anchors.focus();
           }
         });
       });
@@ -5828,10 +6025,10 @@ var Dropdown = function (_Positionable) {
       var $body = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(document.body).not(this.$element),
           _this = this;
       $body.off('click.zf.dropdown').on('click.zf.dropdown', function (e) {
-        if (_this.$anchor.is(e.target) || _this.$anchor.find(e.target).length) {
+        if (_this.$anchors.is(e.target) || _this.$anchors.find(e.target).length) {
           return;
         }
-        if (_this.$element.find(e.target).length) {
+        if (_this.$element.is(e.target) || _this.$element.find(e.target).length) {
           return;
         }
         _this.close();
@@ -5855,7 +6052,7 @@ var Dropdown = function (_Positionable) {
        * @event Dropdown#closeme
        */
       this.$element.trigger('closeme.zf.dropdown', this.$element.attr('id'));
-      this.$anchor.addClass('hover').attr({ 'aria-expanded': true });
+      this.$anchors.addClass('hover').attr({ 'aria-expanded': true });
       // this.$element/*.show()*/;
 
       this.$element.addClass('is-opening');
@@ -5898,7 +6095,7 @@ var Dropdown = function (_Positionable) {
       }
       this.$element.removeClass('is-open').attr({ 'aria-hidden': true });
 
-      this.$anchor.removeClass('hover').attr('aria-expanded', false);
+      this.$anchors.removeClass('hover').attr('aria-expanded', false);
 
       /**
        * Fires once the dropdown is no longer visible.
@@ -5920,7 +6117,7 @@ var Dropdown = function (_Positionable) {
     key: 'toggle',
     value: function toggle() {
       if (this.$element.hasClass('is-open')) {
-        if (this.$anchor.data('hover')) return;
+        if (this.$anchors.data('hover')) return;
         this.close();
       } else {
         this.open();
@@ -5936,7 +6133,7 @@ var Dropdown = function (_Positionable) {
     key: '_destroy',
     value: function _destroy() {
       this.$element.off('.zf.trigger').hide();
-      this.$anchor.off('.zf.dropdown');
+      this.$anchors.off('.zf.dropdown');
       __WEBPACK_IMPORTED_MODULE_0_jquery___default()(document.body).off('click.zf.dropdown');
     }
   }]);
@@ -6051,14 +6248,14 @@ Dropdown.defaults = {
 
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Equalizer; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_mediaQuery__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_mediaQuery__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_imageLoader__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_util_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__foundation_plugin__ = __webpack_require__(2);
@@ -6100,6 +6297,7 @@ var Equalizer = function (_Plugin) {
     /**
      * Creates a new instance of Equalizer.
      * @class
+     * @name Equalizer
      * @fires Equalizer#init
      * @param {Object} element - jQuery object to add the trigger to.
      * @param {Object} options - Overrides to the default plugin settings.
@@ -6107,6 +6305,7 @@ var Equalizer = function (_Plugin) {
     value: function _setup(element, options) {
       this.$element = element;
       this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, Equalizer.defaults, this.$element.data(), options);
+      this.className = 'Equalizer'; // ie9 back compat
 
       this._init();
     }
@@ -6122,9 +6321,11 @@ var Equalizer = function (_Plugin) {
       var eqId = this.$element.attr('data-equalizer') || '';
       var $watched = this.$element.find('[data-equalizer-watch="' + eqId + '"]');
 
+      __WEBPACK_IMPORTED_MODULE_1__foundation_util_mediaQuery__["a" /* MediaQuery */]._init();
+
       this.$watched = $watched.length ? $watched : this.$element.find('[data-equalizer-watch]');
-      this.$element.attr('data-resize', eqId || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["b" /* GetYoDigits */])(6, 'eq'));
-      this.$element.attr('data-mutate', eqId || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["b" /* GetYoDigits */])(6, 'eq'));
+      this.$element.attr('data-resize', eqId || Object(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["a" /* GetYoDigits */])(6, 'eq'));
+      this.$element.attr('data-mutate', eqId || Object(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["a" /* GetYoDigits */])(6, 'eq'));
 
       this.hasNested = this.$element.find('[data-equalizer]').length > 0;
       this.isNested = this.$element.parentsUntil(document.body, '[data-equalizer]').length > 0;
@@ -6144,7 +6345,7 @@ var Equalizer = function (_Plugin) {
       }
       if (tooSmall !== undefined && tooSmall === false || tooSmall === undefined) {
         if (imgs.length) {
-          __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__foundation_util_imageLoader__["a" /* onImagesLoaded */])(imgs, this._reflow.bind(this));
+          Object(__WEBPACK_IMPORTED_MODULE_2__foundation_util_imageLoader__["a" /* onImagesLoaded */])(imgs, this._reflow.bind(this));
         } else {
           this._reflow();
         }
@@ -6448,15 +6649,16 @@ Equalizer.defaults = {
 
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Interchange; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_mediaQuery__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_mediaQuery__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_plugin__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_util_core__ = __webpack_require__(1);
 
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -6466,6 +6668,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 
 
 
@@ -6492,6 +6695,7 @@ var Interchange = function (_Plugin) {
     /**
      * Creates a new instance of Interchange.
      * @class
+     * @name Interchange
      * @fires Interchange#init
      * @param {Object} element - jQuery object to add the trigger to.
      * @param {Object} options - Overrides to the default plugin settings.
@@ -6501,6 +6705,7 @@ var Interchange = function (_Plugin) {
       this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, Interchange.defaults, options);
       this.rules = [];
       this.currentPath = '';
+      this.className = 'Interchange'; // ie9 back compat
 
       this._init();
       this._events();
@@ -6515,7 +6720,9 @@ var Interchange = function (_Plugin) {
   }, {
     key: '_init',
     value: function _init() {
-      var id = this.$element[0].id || Foundation.GetYoDigits(6, 'interchange');
+      __WEBPACK_IMPORTED_MODULE_1__foundation_util_mediaQuery__["a" /* MediaQuery */]._init();
+
+      var id = this.$element[0].id || Object(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["a" /* GetYoDigits */])(6, 'interchange');
       this.$element.attr({
         'data-resize': id,
         'id': id
@@ -6650,6 +6857,7 @@ var Interchange = function (_Plugin) {
       }
       // Replacing background images
       else if (path.match(/\.(gif|jpg|jpeg|png|svg|tiff)([?#].*)?/i)) {
+          path = path.replace(/\(/g, '%28').replace(/\)/g, '%29');
           this.$element.css({ 'background-image': 'url(' + path + ')' }).trigger(trigger);
         }
         // Replacing HTML
@@ -6707,7 +6915,7 @@ Interchange.SPECIAL_QUERIES = {
 
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6716,7 +6924,7 @@ Interchange.SPECIAL_QUERIES = {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_plugin__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_smoothScroll__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_smoothScroll__ = __webpack_require__(17);
 
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -6753,6 +6961,7 @@ var Magellan = function (_Plugin) {
     /**
      * Creates a new instance of Magellan.
      * @class
+     * @name Magellan
      * @fires Magellan#init
      * @param {Object} element - jQuery object to add the trigger to.
      * @param {Object} options - Overrides to the default plugin settings.
@@ -6760,6 +6969,7 @@ var Magellan = function (_Plugin) {
     value: function _setup(element, options) {
       this.$element = element;
       this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, Magellan.defaults, this.$element.data(), options);
+      this.className = 'Magellan'; // ie9 back compat
 
       this._init();
       this.calcPoints();
@@ -6773,7 +6983,7 @@ var Magellan = function (_Plugin) {
   }, {
     key: '_init',
     value: function _init() {
-      var id = this.$element[0].id || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__foundation_util_core__["b" /* GetYoDigits */])(6, 'magellan');
+      var id = this.$element[0].id || Object(__WEBPACK_IMPORTED_MODULE_1__foundation_util_core__["a" /* GetYoDigits */])(6, 'magellan');
       var _this = this;
       this.$targets = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-magellan-target]');
       this.$links = this.$element.find('a');
@@ -7021,15 +7231,15 @@ Magellan.defaults = {
 
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return OffCanvas; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_mediaQuery__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_mediaQuery__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_util_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__foundation_plugin__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__foundation_util_triggers__ = __webpack_require__(5);
@@ -7074,18 +7284,36 @@ var OffCanvas = function (_Plugin) {
     /**
      * Creates a new instance of an off-canvas wrapper.
      * @class
+     * @name OffCanvas
      * @fires OffCanvas#init
      * @param {Object} element - jQuery object to initialize.
      * @param {Object} options - Overrides to the default plugin settings.
      */
     value: function _setup(element, options) {
+      var _this3 = this;
+
+      this.className = 'OffCanvas'; // ie9 back compat
       this.$element = element;
       this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, OffCanvas.defaults, this.$element.data(), options);
+      this.contentClasses = { base: [], reveal: [] };
       this.$lastTrigger = __WEBPACK_IMPORTED_MODULE_0_jquery___default()();
       this.$triggers = __WEBPACK_IMPORTED_MODULE_0_jquery___default()();
+      this.position = 'left';
+      this.$content = __WEBPACK_IMPORTED_MODULE_0_jquery___default()();
+      this.nested = !!this.options.nested;
 
-      //Triggers init is idempotent, just need to make sure it is initialized
+      // Defines the CSS transition/position classes of the off-canvas content container.
+      __WEBPACK_IMPORTED_MODULE_0_jquery___default()(['push', 'overlap']).each(function (index, val) {
+        _this3.contentClasses.base.push('has-transition-' + val);
+      });
+      __WEBPACK_IMPORTED_MODULE_0_jquery___default()(['left', 'right', 'top', 'bottom']).each(function (index, val) {
+        _this3.contentClasses.base.push('has-position-' + val);
+        _this3.contentClasses.reveal.push('has-reveal-' + val);
+      });
+
+      // Triggers init is idempotent, just need to make sure it is initialized
       __WEBPACK_IMPORTED_MODULE_5__foundation_util_triggers__["a" /* Triggers */].init(__WEBPACK_IMPORTED_MODULE_0_jquery___default.a);
+      __WEBPACK_IMPORTED_MODULE_2__foundation_util_mediaQuery__["a" /* MediaQuery */]._init();
 
       this._init();
       this._events();
@@ -7108,10 +7336,38 @@ var OffCanvas = function (_Plugin) {
 
       this.$element.attr('aria-hidden', 'true');
 
-      this.$element.addClass('is-transition-' + this.options.transition);
+      // Find off-canvas content, either by ID (if specified), by siblings or by closest selector (fallback)
+      if (this.options.contentId) {
+        this.$content = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#' + this.options.contentId);
+      } else if (this.$element.siblings('[data-off-canvas-content]').length) {
+        this.$content = this.$element.siblings('[data-off-canvas-content]').first();
+      } else {
+        this.$content = this.$element.closest('[data-off-canvas-content]').first();
+      }
+
+      if (!this.options.contentId) {
+        // Assume that the off-canvas element is nested if it isn't a sibling of the content
+        this.nested = this.$element.siblings('[data-off-canvas-content]').length === 0;
+      } else if (this.options.contentId && this.options.nested === null) {
+        // Warning if using content ID without setting the nested option
+        // Once the element is nested it is required to work properly in this case
+        console.warn('Remember to use the nested option if using the content ID option!');
+      }
+
+      if (this.nested === true) {
+        // Force transition overlap if nested
+        this.options.transition = 'overlap';
+        // Remove appropriate classes if already assigned in markup
+        this.$element.removeClass('is-transition-push');
+      }
+
+      this.$element.addClass('is-transition-' + this.options.transition + ' is-closed');
 
       // Find triggers that affect this element and add aria-expanded to them
       this.$triggers = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(document).find('[data-open="' + id + '"], [data-close="' + id + '"], [data-toggle="' + id + '"]').attr('aria-expanded', 'false').attr('aria-controls', id);
+
+      // Get position by checking for related CSS class
+      this.position = this.$element.is('.position-left, .position-top, .position-right, .position-bottom') ? this.$element.attr('class').match(/position\-(left|top|right|bottom)/)[1] : this.position;
 
       // Add an overlay over the content if necessary
       if (this.options.contentOverlay === true) {
@@ -7120,9 +7376,9 @@ var OffCanvas = function (_Plugin) {
         overlay.setAttribute('class', 'js-off-canvas-overlay ' + overlayPosition);
         this.$overlay = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(overlay);
         if (overlayPosition === 'is-overlay-fixed') {
-          __WEBPACK_IMPORTED_MODULE_0_jquery___default()('body').append(this.$overlay);
+          __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this.$overlay).insertAfter(this.$element);
         } else {
-          this.$element.siblings('[data-off-canvas-content]').append(this.$overlay);
+          this.$content.append(this.$overlay);
         }
       }
 
@@ -7136,6 +7392,9 @@ var OffCanvas = function (_Plugin) {
       if (this.options.transitionTime) {
         this.$element.css('transition-duration', this.options.transitionTime);
       }
+
+      // Initally remove all transition/position CSS classes from off-canvas content container.
+      this._removeContentClasses();
     }
 
     /**
@@ -7155,7 +7414,7 @@ var OffCanvas = function (_Plugin) {
       });
 
       if (this.options.closeOnClick === true) {
-        var $target = this.options.contentOverlay ? this.$overlay : __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-off-canvas-content]');
+        var $target = this.options.contentOverlay ? this.$overlay : this.$content;
         $target.on({ 'click.zf.offcanvas': this.close.bind(this) });
       }
     }
@@ -7184,6 +7443,41 @@ var OffCanvas = function (_Plugin) {
     }
 
     /**
+     * Removes the CSS transition/position classes of the off-canvas content container.
+     * Removing the classes is important when another off-canvas gets opened that uses the same content container.
+     * @param {Boolean} hasReveal - true if related off-canvas element is revealed.
+     * @private
+     */
+
+  }, {
+    key: '_removeContentClasses',
+    value: function _removeContentClasses(hasReveal) {
+      if (typeof hasReveal !== 'boolean') {
+        this.$content.removeClass(this.contentClasses.base.join(' '));
+      } else if (hasReveal === false) {
+        this.$content.removeClass('has-reveal-' + this.position);
+      }
+    }
+
+    /**
+     * Adds the CSS transition/position classes of the off-canvas content container, based on the opening off-canvas element.
+     * Beforehand any transition/position class gets removed.
+     * @param {Boolean} hasReveal - true if related off-canvas element is revealed.
+     * @private
+     */
+
+  }, {
+    key: '_addContentClasses',
+    value: function _addContentClasses(hasReveal) {
+      this._removeContentClasses(hasReveal);
+      if (typeof hasReveal !== 'boolean') {
+        this.$content.addClass('has-transition-' + this.options.transition + ' has-position-' + this.position);
+      } else if (hasReveal === true) {
+        this.$content.addClass('has-reveal-' + this.position);
+      }
+    }
+
+    /**
      * Handles the revealing/hiding the off-canvas at breakpoints, not the same as open.
      * @param {Boolean} isRevealed - true if element should be revealed.
      * @function
@@ -7192,15 +7486,12 @@ var OffCanvas = function (_Plugin) {
   }, {
     key: 'reveal',
     value: function reveal(isRevealed) {
-      var $closer = this.$element.find('[data-close]');
       if (isRevealed) {
         this.close();
         this.isRevealed = true;
         this.$element.attr('aria-hidden', 'false');
         this.$element.off('open.zf.trigger toggle.zf.trigger');
-        if ($closer.length) {
-          $closer.hide();
-        }
+        this.$element.removeClass('is-closed');
       } else {
         this.isRevealed = false;
         this.$element.attr('aria-hidden', 'true');
@@ -7208,10 +7499,9 @@ var OffCanvas = function (_Plugin) {
           'open.zf.trigger': this.open.bind(this),
           'toggle.zf.trigger': this.toggle.bind(this)
         });
-        if ($closer.length) {
-          $closer.show();
-        }
+        this.$element.addClass('is-closed');
       }
+      this._addContentClasses(isRevealed);
     }
 
     /**
@@ -7299,10 +7589,12 @@ var OffCanvas = function (_Plugin) {
        * Fires when the off-canvas menu opens.
        * @event OffCanvas#opened
        */
-      _this.$element.addClass('is-open');
+      this.$element.addClass('is-open').removeClass('is-closed');
 
       this.$triggers.attr('aria-expanded', 'true');
       this.$element.attr('aria-hidden', 'false').trigger('opened.zf.offcanvas');
+
+      this.$content.addClass('is-open-' + this.position);
 
       // If `contentScroll` is set to false, add class and disable scrolling on touch devices.
       if (this.options.contentScroll === false) {
@@ -7320,7 +7612,10 @@ var OffCanvas = function (_Plugin) {
       }
 
       if (this.options.autoFocus === true) {
-        this.$element.one(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["c" /* transitionend */])(this.$element), function () {
+        this.$element.one(Object(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["c" /* transitionend */])(this.$element), function () {
+          if (!_this.$element.hasClass('is-open')) {
+            return; // exit if prematurely closed
+          }
           var canvasFocus = _this.$element.find('[data-autofocus]');
           if (canvasFocus.length) {
             canvasFocus.eq(0).focus();
@@ -7331,9 +7626,11 @@ var OffCanvas = function (_Plugin) {
       }
 
       if (this.options.trapFocus === true) {
-        this.$element.siblings('[data-off-canvas-content]').attr('tabindex', '-1');
+        this.$content.attr('tabindex', '-1');
         __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__["a" /* Keyboard */].trapFocus(this.$element);
       }
+
+      this._addContentClasses();
     }
 
     /**
@@ -7352,7 +7649,7 @@ var OffCanvas = function (_Plugin) {
 
       var _this = this;
 
-      _this.$element.removeClass('is-open');
+      this.$element.removeClass('is-open');
 
       this.$element.attr('aria-hidden', 'true')
       /**
@@ -7360,6 +7657,8 @@ var OffCanvas = function (_Plugin) {
        * @event OffCanvas#closed
        */
       .trigger('closed.zf.offcanvas');
+
+      this.$content.removeClass('is-open-left is-open-top is-open-right is-open-bottom');
 
       // If `contentScroll` is set to false, remove class and re-enable scrolling on touch devices.
       if (this.options.contentScroll === false) {
@@ -7379,9 +7678,15 @@ var OffCanvas = function (_Plugin) {
       this.$triggers.attr('aria-expanded', 'false');
 
       if (this.options.trapFocus === true) {
-        this.$element.siblings('[data-off-canvas-content]').removeAttr('tabindex');
+        this.$content.removeAttr('tabindex');
         __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__["a" /* Keyboard */].releaseFocus(this.$element);
       }
+
+      // Listen to transitionEnd and add class when done.
+      this.$element.one(Object(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["c" /* transitionend */])(this.$element), function (e) {
+        _this.$element.addClass('is-closed');
+        _this._removeContentClasses();
+      });
     }
 
     /**
@@ -7410,12 +7715,12 @@ var OffCanvas = function (_Plugin) {
   }, {
     key: '_handleKeyboard',
     value: function _handleKeyboard(e) {
-      var _this3 = this;
+      var _this4 = this;
 
       __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__["a" /* Keyboard */].handleKey(e, 'OffCanvas', {
         close: function () {
-          _this3.close();
-          _this3.$lastTrigger.focus();
+          _this4.close();
+          _this4.$lastTrigger.focus();
           return true;
         },
         handled: function () {
@@ -7458,6 +7763,22 @@ OffCanvas.defaults = {
    * @default true
    */
   contentOverlay: true,
+
+  /**
+   * Target an off-canvas content container by ID that may be placed anywhere. If null the closest content container will be taken.
+   * @option
+   * @type {?string}
+   * @default null
+   */
+  contentId: null,
+
+  /**
+   * Define the off-canvas element is nested in an off-canvas content. This is required when using the contentId option for a nested element.
+   * @option
+   * @type {boolean}
+   * @default null
+   */
+  nested: null,
 
   /**
    * Enable/disable scrolling of the main content when an off canvas panel is open.
@@ -7536,16 +7857,16 @@ OffCanvas.defaults = {
 
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Orbit; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_motion__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_util_timer__ = __webpack_require__(18);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_util_timer__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__foundation_util_imageLoader__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__foundation_util_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__foundation_plugin__ = __webpack_require__(2);
@@ -7594,12 +7915,14 @@ var Orbit = function (_Plugin) {
     /**
     * Creates a new instance of an orbit carousel.
     * @class
+    * @name Orbit
     * @param {jQuery} element - jQuery object to make into an Orbit Carousel.
     * @param {Object} options - Overrides to the default plugin settings.
     */
     value: function _setup(element, options) {
       this.$element = element;
       this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, Orbit.defaults, this.$element.data(), options);
+      this.className = 'Orbit'; // ie9 back compat
 
       __WEBPACK_IMPORTED_MODULE_7__foundation_util_touch__["a" /* Touch */].init(__WEBPACK_IMPORTED_MODULE_0_jquery___default.a); // Touch init is idempotent, we just need to make sure it's initialied.
 
@@ -7634,7 +7957,7 @@ var Orbit = function (_Plugin) {
 
       var $images = this.$element.find('img'),
           initActive = this.$slides.filter('.is-active'),
-          id = this.$element[0].id || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__foundation_util_core__["b" /* GetYoDigits */])(6, 'orbit');
+          id = this.$element[0].id || Object(__WEBPACK_IMPORTED_MODULE_5__foundation_util_core__["a" /* GetYoDigits */])(6, 'orbit');
 
       this.$element.attr({
         'data-resize': id,
@@ -7650,7 +7973,7 @@ var Orbit = function (_Plugin) {
       }
 
       if ($images.length) {
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__foundation_util_imageLoader__["a" /* onImagesLoaded */])($images, this._prepareForOrbit.bind(this));
+        Object(__WEBPACK_IMPORTED_MODULE_4__foundation_util_imageLoader__["a" /* onImagesLoaded */])($images, this._prepareForOrbit.bind(this));
       } else {
         this._prepareForOrbit(); //hehe
       }
@@ -7734,7 +8057,7 @@ var Orbit = function (_Plugin) {
         temp = this.getBoundingClientRect().height;
         __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).attr('data-slide', counter);
 
-        if (_this.$slides.filter('.is-active')[0] !== _this.$slides.eq(counter)[0]) {
+        if (!/mui/g.test(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this)[0].className) && _this.$slides.filter('.is-active')[0] !== _this.$slides.eq(counter)[0]) {
           //if not the active slide, set css position and display property
           __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).css({ 'position': 'relative', 'display': 'none' });
         }
@@ -8136,293 +8459,6 @@ Orbit.defaults = {
 
 
 /***/ }),
-/* 28 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ResponsiveAccordionTabs; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_mediaQuery__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_plugin__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__foundation_accordion__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__foundation_tabs__ = __webpack_require__(17);
-
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-
-
-
-
-
-
-
-
-// The plugin matches the plugin classes with these plugin instances.
-var MenuPlugins = {
-  tabs: {
-    cssClass: 'tabs',
-    plugin: __WEBPACK_IMPORTED_MODULE_5__foundation_tabs__["a" /* Tabs */]
-  },
-  accordion: {
-    cssClass: 'accordion',
-    plugin: __WEBPACK_IMPORTED_MODULE_4__foundation_accordion__["a" /* Accordion */]
-  }
-};
-
-/**
- * ResponsiveAccordionTabs module.
- * @module foundation.responsiveAccordionTabs
- * @requires foundation.util.motion
- * @requires foundation.accordion
- * @requires foundation.tabs
- */
-
-var ResponsiveAccordionTabs = function (_Plugin) {
-  _inherits(ResponsiveAccordionTabs, _Plugin);
-
-  function ResponsiveAccordionTabs() {
-    _classCallCheck(this, ResponsiveAccordionTabs);
-
-    return _possibleConstructorReturn(this, (ResponsiveAccordionTabs.__proto__ || Object.getPrototypeOf(ResponsiveAccordionTabs)).apply(this, arguments));
-  }
-
-  _createClass(ResponsiveAccordionTabs, [{
-    key: '_setup',
-
-    /**
-     * Creates a new instance of a responsive accordion tabs.
-     * @class
-     * @fires ResponsiveAccordionTabs#init
-     * @param {jQuery} element - jQuery object to make into a dropdown menu.
-     * @param {Object} options - Overrides to the default plugin settings.
-     */
-    value: function _setup(element, options) {
-      this.$element = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(element);
-      this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, this.$element.data(), options);
-      this.rules = this.$element.data('responsive-accordion-tabs');
-      this.currentMq = null;
-      this.currentPlugin = null;
-      if (!this.$element.attr('id')) {
-        this.$element.attr('id', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__foundation_util_core__["b" /* GetYoDigits */])(6, 'responsiveaccordiontabs'));
-      };
-
-      this._init();
-      this._events();
-    }
-
-    /**
-     * Initializes the Menu by parsing the classes from the 'data-responsive-accordion-tabs' attribute on the element.
-     * @function
-     * @private
-     */
-
-  }, {
-    key: '_init',
-    value: function _init() {
-      // The first time an Interchange plugin is initialized, this.rules is converted from a string of "classes" to an object of rules
-      if (typeof this.rules === 'string') {
-        var rulesTree = {};
-
-        // Parse rules from "classes" pulled from data attribute
-        var rules = this.rules.split(' ');
-
-        // Iterate through every rule found
-        for (var i = 0; i < rules.length; i++) {
-          var rule = rules[i].split('-');
-          var ruleSize = rule.length > 1 ? rule[0] : 'small';
-          var rulePlugin = rule.length > 1 ? rule[1] : rule[0];
-
-          if (MenuPlugins[rulePlugin] !== null) {
-            rulesTree[ruleSize] = MenuPlugins[rulePlugin];
-          }
-        }
-
-        this.rules = rulesTree;
-      }
-
-      this._getAllOptions();
-
-      if (!__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.isEmptyObject(this.rules)) {
-        this._checkMediaQueries();
-      }
-    }
-  }, {
-    key: '_getAllOptions',
-    value: function _getAllOptions() {
-      //get all defaults and options
-      var _this = this;
-      _this.allOptions = {};
-      for (var key in MenuPlugins) {
-        if (MenuPlugins.hasOwnProperty(key)) {
-          var obj = MenuPlugins[key];
-          try {
-            var dummyPlugin = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('<ul></ul>');
-            var tmpPlugin = new obj.plugin(dummyPlugin, _this.options);
-            for (var keyKey in tmpPlugin.options) {
-              if (tmpPlugin.options.hasOwnProperty(keyKey) && keyKey !== 'zfPlugin') {
-                var objObj = tmpPlugin.options[keyKey];
-                _this.allOptions[keyKey] = objObj;
-              }
-            }
-            tmpPlugin.destroy();
-          } catch (e) {}
-        }
-      }
-    }
-
-    /**
-     * Initializes events for the Menu.
-     * @function
-     * @private
-     */
-
-  }, {
-    key: '_events',
-    value: function _events() {
-      var _this = this;
-
-      __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).on('changed.zf.mediaquery', function () {
-        _this._checkMediaQueries();
-      });
-    }
-
-    /**
-     * Checks the current screen width against available media queries. If the media query has changed, and the plugin needed has changed, the plugins will swap out.
-     * @function
-     * @private
-     */
-
-  }, {
-    key: '_checkMediaQueries',
-    value: function _checkMediaQueries() {
-      var matchedMq,
-          _this = this;
-      // Iterate through each rule and find the last matching rule
-      __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.each(this.rules, function (key) {
-        if (__WEBPACK_IMPORTED_MODULE_1__foundation_util_mediaQuery__["a" /* MediaQuery */].atLeast(key)) {
-          matchedMq = key;
-        }
-      });
-
-      // No match? No dice
-      if (!matchedMq) return;
-
-      // Plugin already initialized? We good
-      if (this.currentPlugin instanceof this.rules[matchedMq].plugin) return;
-
-      // Remove existing plugin-specific CSS classes
-      __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.each(MenuPlugins, function (key, value) {
-        _this.$element.removeClass(value.cssClass);
-      });
-
-      // Add the CSS class for the new plugin
-      this.$element.addClass(this.rules[matchedMq].cssClass);
-
-      // Create an instance of the new plugin
-      if (this.currentPlugin) {
-        //don't know why but on nested elements data zfPlugin get's lost
-        if (!this.currentPlugin.$element.data('zfPlugin') && this.storezfData) this.currentPlugin.$element.data('zfPlugin', this.storezfData);
-        this.currentPlugin.destroy();
-      }
-      this._handleMarkup(this.rules[matchedMq].cssClass);
-      this.currentPlugin = new this.rules[matchedMq].plugin(this.$element, {});
-      this.storezfData = this.currentPlugin.$element.data('zfPlugin');
-    }
-  }, {
-    key: '_handleMarkup',
-    value: function _handleMarkup(toSet) {
-      var _this = this,
-          fromString = 'accordion';
-      var $panels = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-tabs-content=' + this.$element.attr('id') + ']');
-      if ($panels.length) fromString = 'tabs';
-      if (fromString === toSet) {
-        return;
-      };
-
-      var tabsTitle = _this.allOptions.linkClass ? _this.allOptions.linkClass : 'tabs-title';
-      var tabsPanel = _this.allOptions.panelClass ? _this.allOptions.panelClass : 'tabs-panel';
-
-      this.$element.removeAttr('role');
-      var $liHeads = this.$element.children('.' + tabsTitle + ',[data-accordion-item]').removeClass(tabsTitle).removeClass('accordion-item').removeAttr('data-accordion-item');
-      var $liHeadsA = $liHeads.children('a').removeClass('accordion-title');
-
-      if (fromString === 'tabs') {
-        $panels = $panels.children('.' + tabsPanel).removeClass(tabsPanel).removeAttr('role').removeAttr('aria-hidden').removeAttr('aria-labelledby');
-        $panels.children('a').removeAttr('role').removeAttr('aria-controls').removeAttr('aria-selected');
-      } else {
-        $panels = $liHeads.children('[data-tab-content]').removeClass('accordion-content');
-      };
-
-      $panels.css({ display: '', visibility: '' });
-      $liHeads.css({ display: '', visibility: '' });
-      if (toSet === 'accordion') {
-        $panels.each(function (key, value) {
-          __WEBPACK_IMPORTED_MODULE_0_jquery___default()(value).appendTo($liHeads.get(key)).addClass('accordion-content').attr('data-tab-content', '').removeClass('is-active').css({ height: '' });
-          __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-tabs-content=' + _this.$element.attr('id') + ']').after('<div id="tabs-placeholder-' + _this.$element.attr('id') + '"></div>').detach();
-          $liHeads.addClass('accordion-item').attr('data-accordion-item', '');
-          $liHeadsA.addClass('accordion-title');
-        });
-      } else if (toSet === 'tabs') {
-        var $tabsContent = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-tabs-content=' + _this.$element.attr('id') + ']');
-        var $placeholder = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#tabs-placeholder-' + _this.$element.attr('id'));
-        if ($placeholder.length) {
-          $tabsContent = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('<div class="tabs-content"></div>').insertAfter($placeholder).attr('data-tabs-content', _this.$element.attr('id'));
-          $placeholder.remove();
-        } else {
-          $tabsContent = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('<div class="tabs-content"></div>').insertAfter(_this.$element).attr('data-tabs-content', _this.$element.attr('id'));
-        };
-        $panels.each(function (key, value) {
-          var tempValue = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(value).appendTo($tabsContent).addClass(tabsPanel);
-          var hash = $liHeadsA.get(key).hash.slice(1);
-          var id = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(value).attr('id') || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__foundation_util_core__["b" /* GetYoDigits */])(6, 'accordion');
-          if (hash !== id) {
-            if (hash !== '') {
-              __WEBPACK_IMPORTED_MODULE_0_jquery___default()(value).attr('id', hash);
-            } else {
-              hash = id;
-              __WEBPACK_IMPORTED_MODULE_0_jquery___default()(value).attr('id', hash);
-              __WEBPACK_IMPORTED_MODULE_0_jquery___default()($liHeadsA.get(key)).attr('href', __WEBPACK_IMPORTED_MODULE_0_jquery___default()($liHeadsA.get(key)).attr('href').replace('#', '') + '#' + hash);
-            };
-          };
-          var isActive = __WEBPACK_IMPORTED_MODULE_0_jquery___default()($liHeads.get(key)).hasClass('is-active');
-          if (isActive) {
-            tempValue.addClass('is-active');
-          };
-        });
-        $liHeads.addClass(tabsTitle);
-      };
-    }
-
-    /**
-     * Destroys the instance of the current plugin on this element, as well as the window resize handler that switches the plugins out.
-     * @function
-     */
-
-  }, {
-    key: '_destroy',
-    value: function _destroy() {
-      if (this.currentPlugin) this.currentPlugin.destroy();
-      __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).off('.zf.ResponsiveAccordionTabs');
-    }
-  }]);
-
-  return ResponsiveAccordionTabs;
-}(__WEBPACK_IMPORTED_MODULE_3__foundation_plugin__["a" /* Plugin */]);
-
-ResponsiveAccordionTabs.defaults = {};
-
-
-
-/***/ }),
 /* 29 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -8430,12 +8466,12 @@ ResponsiveAccordionTabs.defaults = {};
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ResponsiveMenu; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_mediaQuery__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_mediaQuery__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_plugin__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__foundation_dropdownMenu__ = __webpack_require__(14);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__foundation_drilldown__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__foundation_accordionMenu__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__foundation_dropdownMenu__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__foundation_drilldown__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__foundation_accordionMenu__ = __webpack_require__(13);
 
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -8496,6 +8532,7 @@ var ResponsiveMenu = function (_Plugin) {
     /**
      * Creates a new instance of a responsive menu.
      * @class
+     * @name ResponsiveMenu
      * @fires ResponsiveMenu#init
      * @param {jQuery} element - jQuery object to make into a dropdown menu.
      * @param {Object} options - Overrides to the default plugin settings.
@@ -8505,6 +8542,7 @@ var ResponsiveMenu = function (_Plugin) {
       this.rules = this.$element.data('responsive-menu');
       this.currentMq = null;
       this.currentPlugin = null;
+      this.className = 'ResponsiveMenu'; // ie9 back compat
 
       this._init();
       this._events();
@@ -8519,6 +8557,8 @@ var ResponsiveMenu = function (_Plugin) {
   }, {
     key: '_init',
     value: function _init() {
+
+      __WEBPACK_IMPORTED_MODULE_1__foundation_util_mediaQuery__["a" /* MediaQuery */]._init();
       // The first time an Interchange plugin is initialized, this.rules is converted from a string of "classes" to an object of rules
       if (typeof this.rules === 'string') {
         var rulesTree = {};
@@ -8544,7 +8584,7 @@ var ResponsiveMenu = function (_Plugin) {
         this._checkMediaQueries();
       }
       // Add data-mutate since children may need it.
-      this.$element.attr('data-mutate', this.$element.attr('data-mutate') || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__foundation_util_core__["b" /* GetYoDigits */])(6, 'responsive-menu'));
+      this.$element.attr('data-mutate', this.$element.attr('data-mutate') || Object(__WEBPACK_IMPORTED_MODULE_2__foundation_util_core__["a" /* GetYoDigits */])(6, 'responsive-menu'));
     }
 
     /**
@@ -8631,7 +8671,7 @@ ResponsiveMenu.defaults = {};
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ResponsiveToggle; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_mediaQuery__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_mediaQuery__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_motion__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_plugin__ = __webpack_require__(2);
 
@@ -8672,6 +8712,7 @@ var ResponsiveToggle = function (_Plugin) {
     /**
      * Creates a new instance of Tab Bar.
      * @class
+     * @name ResponsiveToggle
      * @fires ResponsiveToggle#init
      * @param {jQuery} element - jQuery object to attach tab bar functionality to.
      * @param {Object} options - Overrides to the default plugin settings.
@@ -8679,6 +8720,7 @@ var ResponsiveToggle = function (_Plugin) {
     value: function _setup(element, options) {
       this.$element = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(element);
       this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, ResponsiveToggle.defaults, this.$element.data(), options);
+      this.className = 'ResponsiveToggle'; // ie9 back compat
 
       this._init();
       this._events();
@@ -8693,6 +8735,7 @@ var ResponsiveToggle = function (_Plugin) {
   }, {
     key: '_init',
     value: function _init() {
+      __WEBPACK_IMPORTED_MODULE_1__foundation_util_mediaQuery__["a" /* MediaQuery */]._init();
       var targetID = this.$element.data('responsive-toggle');
       if (!targetID) {
         console.error('Your tab bar needs an ID of a Menu as the value of data-tab-bar.');
@@ -8774,7 +8817,7 @@ var ResponsiveToggle = function (_Plugin) {
          */
         if (this.options.animate) {
           if (this.$targetMenu.is(':hidden')) {
-            Foundation.Motion.animateIn(this.$targetMenu, this.animationIn, function () {
+            __WEBPACK_IMPORTED_MODULE_2__foundation_util_motion__["a" /* Motion */].animateIn(this.$targetMenu, this.animationIn, function () {
               _this3.$element.trigger('toggled.zf.responsiveToggle');
               _this3.$targetMenu.find('[data-mutate]').triggerHandler('mutateme.zf.trigger');
             });
@@ -8831,8 +8874,8 @@ ResponsiveToggle.defaults = {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Reveal; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_mediaQuery__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_mediaQuery__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_util_motion__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__foundation_plugin__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__foundation_util_triggers__ = __webpack_require__(5);
@@ -8877,12 +8920,14 @@ var Reveal = function (_Plugin) {
     /**
      * Creates a new instance of Reveal.
      * @class
+     * @name Reveal
      * @param {jQuery} element - jQuery object to use for the modal.
      * @param {Object} options - optional parameters.
      */
     value: function _setup(element, options) {
       this.$element = element;
       this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, Reveal.defaults, this.$element.data(), options);
+      this.className = 'Reveal'; // ie9 back compat
       this._init();
 
       // Triggers init is idempotent, just need to make sure it is initialized
@@ -8901,10 +8946,10 @@ var Reveal = function (_Plugin) {
   }, {
     key: '_init',
     value: function _init() {
+      __WEBPACK_IMPORTED_MODULE_2__foundation_util_mediaQuery__["a" /* MediaQuery */]._init();
       this.id = this.$element.attr('id');
       this.isActive = false;
       this.cached = { mq: __WEBPACK_IMPORTED_MODULE_2__foundation_util_mediaQuery__["a" /* MediaQuery */].current };
-      this.isMobile = mobileSniff();
 
       this.$anchor = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-open="' + this.id + '"]').length ? __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-open="' + this.id + '"]') : __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-toggle="' + this.id + '"]');
       this.$anchor.attr({
@@ -8970,7 +9015,8 @@ var Reveal = function (_Plugin) {
       var outerWidth = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).width();
       var height = this.$element.outerHeight();
       var outerHeight = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).height();
-      var left, top;
+      var left,
+          top = null;
       if (this.options.hOffset === 'auto') {
         left = parseInt((outerWidth - width) / 2, 10);
       } else {
@@ -8982,11 +9028,15 @@ var Reveal = function (_Plugin) {
         } else {
           top = parseInt((outerHeight - height) / 4, 10);
         }
-      } else {
+      } else if (this.options.vOffset !== null) {
         top = parseInt(this.options.vOffset, 10);
       }
-      this.$element.css({ top: top + 'px' });
-      // only worry about left if we don't have an overlay or we havea  horizontal offset,
+
+      if (top !== null) {
+        this.$element.css({ top: top + 'px' });
+      }
+
+      // only worry about left if we don't have an overlay or we have a horizontal offset,
       // otherwise we're perfectly in the middle
       if (!this.$overlay || this.options.hOffset !== 'auto') {
         this.$element.css({ left: left + 'px' });
@@ -9049,6 +9099,33 @@ var Reveal = function (_Plugin) {
     }
 
     /**
+    * Disables the scroll when Reveal is shown to prevent the background from shifting
+    */
+
+  }, {
+    key: '_disableScroll',
+    value: function _disableScroll() {
+      if (__WEBPACK_IMPORTED_MODULE_0_jquery___default()(document).height() > __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).height()) {
+        var scrollTop = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).scrollTop();
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()("html").css("top", -scrollTop);
+      }
+    }
+
+    /**
+    * Reenables the scroll when Reveal closes
+    */
+
+  }, {
+    key: '_enableScroll',
+    value: function _enableScroll() {
+      if (__WEBPACK_IMPORTED_MODULE_0_jquery___default()(document).height() > __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).height()) {
+        var scrollTop = parseInt(__WEBPACK_IMPORTED_MODULE_0_jquery___default()("html").css("top"));
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()("html").css("top", "");
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).scrollTop(-scrollTop);
+      }
+    }
+
+    /**
      * Opens the modal controlled by `this.$anchor`, and closes all others by default.
      * @function
      * @fires Reveal#closeme
@@ -9105,18 +9182,15 @@ var Reveal = function (_Plugin) {
         this.$element.trigger('closeme.zf.reveal', this.id);
       }
 
+      this._disableScroll();
+
       var _this = this;
 
       function addRevealOpenClasses() {
-        if (_this.isMobile) {
-          if (!_this.originalScrollPos) {
-            _this.originalScrollPos = window.pageYOffset;
-          }
-          __WEBPACK_IMPORTED_MODULE_0_jquery___default()('html, body').addClass('is-reveal-open');
-        } else {
-          __WEBPACK_IMPORTED_MODULE_0_jquery___default()('body').addClass('is-reveal-open');
-        }
+
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()('html').addClass('is-reveal-open');
       }
+
       // Motion UI method of reveal
       if (this.options.animationIn) {
         var afterAnimation = function () {
@@ -9246,23 +9320,16 @@ var Reveal = function (_Plugin) {
       this.$element.off('keydown.zf.reveal');
 
       function finishUp() {
-        if (_this.isMobile) {
-          if (__WEBPACK_IMPORTED_MODULE_0_jquery___default()('.reveal:visible').length === 0) {
-            __WEBPACK_IMPORTED_MODULE_0_jquery___default()('html, body').removeClass('is-reveal-open');
-          }
-          if (_this.originalScrollPos) {
-            __WEBPACK_IMPORTED_MODULE_0_jquery___default()('body').scrollTop(_this.originalScrollPos);
-            _this.originalScrollPos = null;
-          }
-        } else {
-          if (__WEBPACK_IMPORTED_MODULE_0_jquery___default()('.reveal:visible').length === 0) {
-            __WEBPACK_IMPORTED_MODULE_0_jquery___default()('body').removeClass('is-reveal-open');
-          }
+
+        if (__WEBPACK_IMPORTED_MODULE_0_jquery___default()('.reveal:visible').length === 0) {
+          __WEBPACK_IMPORTED_MODULE_0_jquery___default()('html').removeClass('is-reveal-open');
         }
 
         __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__["a" /* Keyboard */].releaseFocus(_this.$element);
 
         _this.$element.attr('aria-hidden', true);
+
+        _this._enableScroll();
 
         /**
         * Fires when the modal is done closing.
@@ -9448,20 +9515,6 @@ Reveal.defaults = {
   additionalOverlayClasses: ''
 };
 
-function iPhoneSniff() {
-  return (/iP(ad|hone|od).*OS/.test(window.navigator.userAgent)
-  );
-}
-
-function androidSniff() {
-  return (/Android/.test(window.navigator.userAgent)
-  );
-}
-
-function mobileSniff() {
-  return iPhoneSniff() || androidSniff();
-}
-
 
 
 /***/ }),
@@ -9472,7 +9525,7 @@ function mobileSniff() {
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Slider; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_keyboard__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_motion__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_util_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__foundation_plugin__ = __webpack_require__(2);
@@ -9522,12 +9575,14 @@ var Slider = function (_Plugin) {
     /**
      * Creates a new instance of a slider control.
      * @class
+     * @name Slider
      * @param {jQuery} element - jQuery object to make into a slider control.
      * @param {Object} options - Overrides to the default plugin settings.
      */
     value: function _setup(element, options) {
       this.$element = element;
       this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, Slider.defaults, this.$element.data(), options);
+      this.className = 'Slider'; // ie9 back compat
 
       // Touch and Triggers inits are idempotent, we just need to make sure it's initialied.
       __WEBPACK_IMPORTED_MODULE_5__foundation_util_touch__["a" /* Touch */].init(__WEBPACK_IMPORTED_MODULE_0_jquery___default.a);
@@ -9663,7 +9718,7 @@ var Slider = function (_Plugin) {
           pctOfBar = this._logTransform(pctOfBar);
           break;
       }
-      var value = (this.options.end - this.options.start) * pctOfBar + this.options.start;
+      var value = (this.options.end - this.options.start) * pctOfBar + parseFloat(this.options.start);
 
       return value;
     }
@@ -9722,6 +9777,12 @@ var Slider = function (_Plugin) {
 
       var isDbl = this.options.doubleSided;
 
+      //this is for single-handled vertical sliders, it adjusts the value to account for the slider being "upside-down"
+      //for click and drag events, it's weird due to the scale(-1, 1) css property
+      if (this.options.vertical && !noInvert) {
+        location = this.options.end - location;
+      }
+
       if (isDbl) {
         //this block is to prevent 2 handles from crossing eachother. Could/should be improved.
         if (this.handles.index($hndl) === 0) {
@@ -9731,12 +9792,6 @@ var Slider = function (_Plugin) {
           var h1Val = parseFloat(this.$handle.attr('aria-valuenow'));
           location = location <= h1Val ? h1Val + this.options.step : location;
         }
-      }
-
-      //this is for single-handled vertical sliders, it adjusts the value to account for the slider being "upside-down"
-      //for click and drag events, it's weird due to the scale(-1, 1) css property
-      if (this.options.vertical && !noInvert) {
-        location = this.options.end - location;
       }
 
       var _this = this,
@@ -9803,7 +9858,7 @@ var Slider = function (_Plugin) {
       //because we don't know exactly how the handle will be moved, check the amount of time it should take to move.
       var moveTime = this.$element.data('dragging') ? 1000 / 60 : this.options.moveTime;
 
-      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__foundation_util_motion__["b" /* Move */])(moveTime, $hndl, function () {
+      Object(__WEBPACK_IMPORTED_MODULE_2__foundation_util_motion__["b" /* Move */])(moveTime, $hndl, function () {
         // adjusting the left/top property of the handle, based on the percentage calculated above
         // if movement isNaN, that is because the slider is hidden and we cannot determine handle width,
         // fall back to next best guess.
@@ -9843,7 +9898,7 @@ var Slider = function (_Plugin) {
     key: '_setInitAttr',
     value: function _setInitAttr(idx) {
       var initVal = idx === 0 ? this.options.initialStart : this.options.initialEnd;
-      var id = this.inputs.eq(idx).attr('id') || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["b" /* GetYoDigits */])(6, 'slider');
+      var id = this.inputs.eq(idx).attr('id') || Object(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["a" /* GetYoDigits */])(6, 'slider');
       this.inputs.eq(idx).attr({
         'id': id,
         'max': this.options.end,
@@ -9927,7 +9982,7 @@ var Slider = function (_Plugin) {
         value = this._value(offsetPct);
 
         // turn everything around for RTL, yay math!
-        if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["a" /* rtl */])() && !this.options.vertical) {
+        if (Object(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["b" /* rtl */])() && !this.options.vertical) {
           value = this.options.end - value;
         }
 
@@ -10277,7 +10332,7 @@ function baseLog(base, value) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_mediaQuery__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_mediaQuery__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_plugin__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__foundation_util_triggers__ = __webpack_require__(5);
 
@@ -10318,12 +10373,14 @@ var Sticky = function (_Plugin) {
     /**
      * Creates a new instance of a sticky thing.
      * @class
+     * @name Sticky
      * @param {jQuery} element - jQuery object to make sticky.
      * @param {Object} options - options object passed when creating the element programmatically.
      */
     value: function _setup(element, options) {
       this.$element = element;
       this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, Sticky.defaults, this.$element.data(), options);
+      this.className = 'Sticky'; // ie9 back compat
 
       // Triggers init is idempotent, just need to make sure it is initialized
       __WEBPACK_IMPORTED_MODULE_4__foundation_util_triggers__["a" /* Triggers */].init(__WEBPACK_IMPORTED_MODULE_0_jquery___default.a);
@@ -10340,8 +10397,10 @@ var Sticky = function (_Plugin) {
   }, {
     key: '_init',
     value: function _init() {
+      __WEBPACK_IMPORTED_MODULE_2__foundation_util_mediaQuery__["a" /* MediaQuery */]._init();
+
       var $parent = this.$element.parent('[data-sticky-container]'),
-          id = this.$element[0].id || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__foundation_util_core__["b" /* GetYoDigits */])(6, 'sticky'),
+          id = this.$element[0].id || Object(__WEBPACK_IMPORTED_MODULE_1__foundation_util_core__["a" /* GetYoDigits */])(6, 'sticky'),
           _this = this;
 
       if ($parent.length) {
@@ -10892,6 +10951,7 @@ var Toggler = function (_Plugin) {
     /**
      * Creates a new instance of Toggler.
      * @class
+     * @name Toggler
      * @fires Toggler#init
      * @param {Object} element - jQuery object to add the trigger to.
      * @param {Object} options - Overrides to the default plugin settings.
@@ -10900,6 +10960,7 @@ var Toggler = function (_Plugin) {
       this.$element = element;
       this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, Toggler.defaults, element.data(), options);
       this.className = '';
+      this.className = 'Toggler'; // ie9 back compat
 
       // Triggers init is idempotent, just need to make sure it is initialized
       __WEBPACK_IMPORTED_MODULE_3__foundation_util_triggers__["a" /* Triggers */].init(__WEBPACK_IMPORTED_MODULE_0_jquery___default.a);
@@ -11047,7 +11108,7 @@ Toggler.defaults = {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_mediaQuery__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_mediaQuery__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_util_triggers__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__foundation_positionable__ = __webpack_require__(15);
 
@@ -11092,6 +11153,7 @@ var Tooltip = function (_Positionable) {
     /**
      * Creates a new instance of a Tooltip.
      * @class
+     * @name Tooltip
      * @fires Tooltip#init
      * @param {jQuery} element - jQuery object to attach a tooltip to.
      * @param {Object} options - object to extend the default configuration.
@@ -11099,6 +11161,7 @@ var Tooltip = function (_Positionable) {
     value: function _setup(element, options) {
       this.$element = element;
       this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, Tooltip.defaults, this.$element.data(), options);
+      this.className = 'Tooltip'; // ie9 back compat
 
       this.isActive = false;
       this.isClick = false;
@@ -11117,7 +11180,8 @@ var Tooltip = function (_Positionable) {
   }, {
     key: '_init',
     value: function _init() {
-      var elemId = this.$element.attr('aria-describedby') || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__foundation_util_core__["b" /* GetYoDigits */])(6, 'tooltip');
+      __WEBPACK_IMPORTED_MODULE_2__foundation_util_mediaQuery__["a" /* MediaQuery */]._init();
+      var elemId = this.$element.attr('aria-describedby') || Object(__WEBPACK_IMPORTED_MODULE_1__foundation_util_core__["a" /* GetYoDigits */])(6, 'tooltip');
 
       this.options.tipText = this.options.tipText || this.$element.attr('title');
       this.template = this.options.template ? __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this.options.template) : this._buildTemplate(elemId);
@@ -11550,9 +11614,293 @@ Tooltip.defaults = {
 
 /***/ }),
 /* 36 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-module.exports = __webpack_require__(19);
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ResponsiveAccordionTabs; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_mediaQuery__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__foundation_util_core__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__foundation_plugin__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__foundation_accordion__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__foundation_tabs__ = __webpack_require__(18);
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+
+
+
+
+
+
+
+
+// The plugin matches the plugin classes with these plugin instances.
+var MenuPlugins = {
+  tabs: {
+    cssClass: 'tabs',
+    plugin: __WEBPACK_IMPORTED_MODULE_5__foundation_tabs__["a" /* Tabs */]
+  },
+  accordion: {
+    cssClass: 'accordion',
+    plugin: __WEBPACK_IMPORTED_MODULE_4__foundation_accordion__["a" /* Accordion */]
+  }
+};
+
+/**
+ * ResponsiveAccordionTabs module.
+ * @module foundation.responsiveAccordionTabs
+ * @requires foundation.util.motion
+ * @requires foundation.accordion
+ * @requires foundation.tabs
+ */
+
+var ResponsiveAccordionTabs = function (_Plugin) {
+  _inherits(ResponsiveAccordionTabs, _Plugin);
+
+  function ResponsiveAccordionTabs() {
+    _classCallCheck(this, ResponsiveAccordionTabs);
+
+    return _possibleConstructorReturn(this, (ResponsiveAccordionTabs.__proto__ || Object.getPrototypeOf(ResponsiveAccordionTabs)).apply(this, arguments));
+  }
+
+  _createClass(ResponsiveAccordionTabs, [{
+    key: '_setup',
+
+    /**
+     * Creates a new instance of a responsive accordion tabs.
+     * @class
+     * @name ResponsiveAccordionTabs
+     * @fires ResponsiveAccordionTabs#init
+     * @param {jQuery} element - jQuery object to make into Responsive Accordion Tabs.
+     * @param {Object} options - Overrides to the default plugin settings.
+     */
+    value: function _setup(element, options) {
+      this.$element = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(element);
+      this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, this.$element.data(), options);
+      this.rules = this.$element.data('responsive-accordion-tabs');
+      this.currentMq = null;
+      this.currentPlugin = null;
+      this.className = 'ResponsiveAccordionTabs'; // ie9 back compat
+      if (!this.$element.attr('id')) {
+        this.$element.attr('id', Object(__WEBPACK_IMPORTED_MODULE_2__foundation_util_core__["a" /* GetYoDigits */])(6, 'responsiveaccordiontabs'));
+      };
+
+      this._init();
+      this._events();
+    }
+
+    /**
+     * Initializes the Menu by parsing the classes from the 'data-responsive-accordion-tabs' attribute on the element.
+     * @function
+     * @private
+     */
+
+  }, {
+    key: '_init',
+    value: function _init() {
+      __WEBPACK_IMPORTED_MODULE_1__foundation_util_mediaQuery__["a" /* MediaQuery */]._init();
+
+      // The first time an Interchange plugin is initialized, this.rules is converted from a string of "classes" to an object of rules
+      if (typeof this.rules === 'string') {
+        var rulesTree = {};
+
+        // Parse rules from "classes" pulled from data attribute
+        var rules = this.rules.split(' ');
+
+        // Iterate through every rule found
+        for (var i = 0; i < rules.length; i++) {
+          var rule = rules[i].split('-');
+          var ruleSize = rule.length > 1 ? rule[0] : 'small';
+          var rulePlugin = rule.length > 1 ? rule[1] : rule[0];
+
+          if (MenuPlugins[rulePlugin] !== null) {
+            rulesTree[ruleSize] = MenuPlugins[rulePlugin];
+          }
+        }
+
+        this.rules = rulesTree;
+      }
+
+      this._getAllOptions();
+
+      if (!__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.isEmptyObject(this.rules)) {
+        this._checkMediaQueries();
+      }
+    }
+  }, {
+    key: '_getAllOptions',
+    value: function _getAllOptions() {
+      //get all defaults and options
+      var _this = this;
+      _this.allOptions = {};
+      for (var key in MenuPlugins) {
+        if (MenuPlugins.hasOwnProperty(key)) {
+          var obj = MenuPlugins[key];
+          try {
+            var dummyPlugin = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('<ul></ul>');
+            var tmpPlugin = new obj.plugin(dummyPlugin, _this.options);
+            for (var keyKey in tmpPlugin.options) {
+              if (tmpPlugin.options.hasOwnProperty(keyKey) && keyKey !== 'zfPlugin') {
+                var objObj = tmpPlugin.options[keyKey];
+                _this.allOptions[keyKey] = objObj;
+              }
+            }
+            tmpPlugin.destroy();
+          } catch (e) {}
+        }
+      }
+    }
+
+    /**
+     * Initializes events for the Menu.
+     * @function
+     * @private
+     */
+
+  }, {
+    key: '_events',
+    value: function _events() {
+      var _this = this;
+
+      __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).on('changed.zf.mediaquery', function () {
+        _this._checkMediaQueries();
+      });
+    }
+
+    /**
+     * Checks the current screen width against available media queries. If the media query has changed, and the plugin needed has changed, the plugins will swap out.
+     * @function
+     * @private
+     */
+
+  }, {
+    key: '_checkMediaQueries',
+    value: function _checkMediaQueries() {
+      var matchedMq,
+          _this = this;
+      // Iterate through each rule and find the last matching rule
+      __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.each(this.rules, function (key) {
+        if (__WEBPACK_IMPORTED_MODULE_1__foundation_util_mediaQuery__["a" /* MediaQuery */].atLeast(key)) {
+          matchedMq = key;
+        }
+      });
+
+      // No match? No dice
+      if (!matchedMq) return;
+
+      // Plugin already initialized? We good
+      if (this.currentPlugin instanceof this.rules[matchedMq].plugin) return;
+
+      // Remove existing plugin-specific CSS classes
+      __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.each(MenuPlugins, function (key, value) {
+        _this.$element.removeClass(value.cssClass);
+      });
+
+      // Add the CSS class for the new plugin
+      this.$element.addClass(this.rules[matchedMq].cssClass);
+
+      // Create an instance of the new plugin
+      if (this.currentPlugin) {
+        //don't know why but on nested elements data zfPlugin get's lost
+        if (!this.currentPlugin.$element.data('zfPlugin') && this.storezfData) this.currentPlugin.$element.data('zfPlugin', this.storezfData);
+        this.currentPlugin.destroy();
+      }
+      this._handleMarkup(this.rules[matchedMq].cssClass);
+      this.currentPlugin = new this.rules[matchedMq].plugin(this.$element, {});
+      this.storezfData = this.currentPlugin.$element.data('zfPlugin');
+    }
+  }, {
+    key: '_handleMarkup',
+    value: function _handleMarkup(toSet) {
+      var _this = this,
+          fromString = 'accordion';
+      var $panels = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-tabs-content=' + this.$element.attr('id') + ']');
+      if ($panels.length) fromString = 'tabs';
+      if (fromString === toSet) {
+        return;
+      };
+
+      var tabsTitle = _this.allOptions.linkClass ? _this.allOptions.linkClass : 'tabs-title';
+      var tabsPanel = _this.allOptions.panelClass ? _this.allOptions.panelClass : 'tabs-panel';
+
+      this.$element.removeAttr('role');
+      var $liHeads = this.$element.children('.' + tabsTitle + ',[data-accordion-item]').removeClass(tabsTitle).removeClass('accordion-item').removeAttr('data-accordion-item');
+      var $liHeadsA = $liHeads.children('a').removeClass('accordion-title');
+
+      if (fromString === 'tabs') {
+        $panels = $panels.children('.' + tabsPanel).removeClass(tabsPanel).removeAttr('role').removeAttr('aria-hidden').removeAttr('aria-labelledby');
+        $panels.children('a').removeAttr('role').removeAttr('aria-controls').removeAttr('aria-selected');
+      } else {
+        $panels = $liHeads.children('[data-tab-content]').removeClass('accordion-content');
+      };
+
+      $panels.css({ display: '', visibility: '' });
+      $liHeads.css({ display: '', visibility: '' });
+      if (toSet === 'accordion') {
+        $panels.each(function (key, value) {
+          __WEBPACK_IMPORTED_MODULE_0_jquery___default()(value).appendTo($liHeads.get(key)).addClass('accordion-content').attr('data-tab-content', '').removeClass('is-active').css({ height: '' });
+          __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-tabs-content=' + _this.$element.attr('id') + ']').after('<div id="tabs-placeholder-' + _this.$element.attr('id') + '"></div>').detach();
+          $liHeads.addClass('accordion-item').attr('data-accordion-item', '');
+          $liHeadsA.addClass('accordion-title');
+        });
+      } else if (toSet === 'tabs') {
+        var $tabsContent = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-tabs-content=' + _this.$element.attr('id') + ']');
+        var $placeholder = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('#tabs-placeholder-' + _this.$element.attr('id'));
+        if ($placeholder.length) {
+          $tabsContent = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('<div class="tabs-content"></div>').insertAfter($placeholder).attr('data-tabs-content', _this.$element.attr('id'));
+          $placeholder.remove();
+        } else {
+          $tabsContent = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('<div class="tabs-content"></div>').insertAfter(_this.$element).attr('data-tabs-content', _this.$element.attr('id'));
+        };
+        $panels.each(function (key, value) {
+          var tempValue = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(value).appendTo($tabsContent).addClass(tabsPanel);
+          var hash = $liHeadsA.get(key).hash.slice(1);
+          var id = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(value).attr('id') || Object(__WEBPACK_IMPORTED_MODULE_2__foundation_util_core__["a" /* GetYoDigits */])(6, 'accordion');
+          if (hash !== id) {
+            if (hash !== '') {
+              __WEBPACK_IMPORTED_MODULE_0_jquery___default()(value).attr('id', hash);
+            } else {
+              hash = id;
+              __WEBPACK_IMPORTED_MODULE_0_jquery___default()(value).attr('id', hash);
+              __WEBPACK_IMPORTED_MODULE_0_jquery___default()($liHeadsA.get(key)).attr('href', __WEBPACK_IMPORTED_MODULE_0_jquery___default()($liHeadsA.get(key)).attr('href').replace('#', '') + '#' + hash);
+            };
+          };
+          var isActive = __WEBPACK_IMPORTED_MODULE_0_jquery___default()($liHeads.get(key)).hasClass('is-active');
+          if (isActive) {
+            tempValue.addClass('is-active');
+          };
+        });
+        $liHeads.addClass(tabsTitle);
+      };
+    }
+
+    /**
+     * Destroys the instance of the current plugin on this element, as well as the window resize handler that switches the plugins out.
+     * @function
+     */
+
+  }, {
+    key: '_destroy',
+    value: function _destroy() {
+      if (this.currentPlugin) this.currentPlugin.destroy();
+      __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).off('.zf.ResponsiveAccordionTabs');
+    }
+  }]);
+
+  return ResponsiveAccordionTabs;
+}(__WEBPACK_IMPORTED_MODULE_3__foundation_plugin__["a" /* Plugin */]);
+
+ResponsiveAccordionTabs.defaults = {};
+
 
 
 /***/ })

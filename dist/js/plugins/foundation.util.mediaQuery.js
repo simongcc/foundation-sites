@@ -33,9 +33,6 @@
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
 /******/
-/******/ 	// identity function for calling harmony imports with the correct context
-/******/ 	__webpack_require__.i = function(value) { return value; };
-/******/
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
@@ -63,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 103);
+/******/ 	return __webpack_require__(__webpack_require__.s = 92);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -82,30 +79,31 @@ module.exports = {Foundation: window.Foundation};
 
 /***/ }),
 
-/***/ 103:
+/***/ 92:
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(37);
+module.exports = __webpack_require__(93);
 
 
 /***/ }),
 
-/***/ 37:
+/***/ 93:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__foundation_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__foundation_core___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__foundation_core__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_mediaQuery__ = __webpack_require__(67);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_mediaQuery__ = __webpack_require__(94);
 
 
 
 __WEBPACK_IMPORTED_MODULE_0__foundation_core__["Foundation"].MediaQuery = __WEBPACK_IMPORTED_MODULE_1__foundation_util_mediaQuery__["a" /* MediaQuery */];
+__WEBPACK_IMPORTED_MODULE_0__foundation_core__["Foundation"].MediaQuery._init();
 
 /***/ }),
 
-/***/ 67:
+/***/ 94:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -170,7 +168,7 @@ var matchMedia = window.matchMedia || function () {
       media: media || 'all'
     };
   };
-};
+}();
 
 var MediaQuery = {
   queries: [],
@@ -184,6 +182,11 @@ var MediaQuery = {
    */
   _init: function () {
     var self = this;
+    var $meta = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('meta.foundation-mq');
+    if (!$meta.length) {
+      __WEBPACK_IMPORTED_MODULE_0_jquery___default()('<meta class="foundation-mq">').appendTo(document.head);
+    }
+
     var extractedStyles = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('.foundation-mq').css('font-family');
     var namedQueries;
 
@@ -289,7 +292,7 @@ var MediaQuery = {
   _watcher: function () {
     var _this = this;
 
-    __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).on('resize.zf.mediaquery', function () {
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()(window).off('resize.zf.mediaquery').on('resize.zf.mediaquery', function () {
       var newSize = _this._getCurrentSize(),
           currentSize = _this.current;
 

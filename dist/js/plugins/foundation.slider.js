@@ -33,9 +33,6 @@
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
 /******/
-/******/ 	// identity function for calling harmony imports with the correct context
-/******/ 	__webpack_require__.i = function(value) { return value; };
-/******/
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
@@ -63,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 94);
+/******/ 	return __webpack_require__(__webpack_require__.s = 65);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -96,21 +93,6 @@ module.exports = {Plugin: window.Foundation.Plugin};
 
 /***/ }),
 
-/***/ 28:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__foundation_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__foundation_core___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__foundation_core__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_slider__ = __webpack_require__(58);
-
-
-
-__WEBPACK_IMPORTED_MODULE_0__foundation_core__["Foundation"].plugin(__WEBPACK_IMPORTED_MODULE_1__foundation_slider__["a" /* Slider */], 'Slider');
-
-/***/ }),
-
 /***/ 3:
 /***/ (function(module, exports) {
 
@@ -132,7 +114,30 @@ module.exports = {Keyboard: window.Foundation.Keyboard};
 
 /***/ }),
 
-/***/ 58:
+/***/ 65:
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(66);
+
+
+/***/ }),
+
+/***/ 66:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__foundation_core__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__foundation_core___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__foundation_core__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_slider__ = __webpack_require__(67);
+
+
+
+__WEBPACK_IMPORTED_MODULE_0__foundation_core__["Foundation"].plugin(__WEBPACK_IMPORTED_MODULE_1__foundation_slider__["a" /* Slider */], 'Slider');
+
+/***/ }),
+
+/***/ 67:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -194,12 +199,14 @@ var Slider = function (_Plugin) {
     /**
      * Creates a new instance of a slider control.
      * @class
+     * @name Slider
      * @param {jQuery} element - jQuery object to make into a slider control.
      * @param {Object} options - Overrides to the default plugin settings.
      */
     value: function _setup(element, options) {
       this.$element = element;
       this.options = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, Slider.defaults, this.$element.data(), options);
+      this.className = 'Slider'; // ie9 back compat
 
       // Touch and Triggers inits are idempotent, we just need to make sure it's initialied.
       __WEBPACK_IMPORTED_MODULE_5__foundation_util_touch__["Touch"].init(__WEBPACK_IMPORTED_MODULE_0_jquery___default.a);
@@ -335,7 +342,7 @@ var Slider = function (_Plugin) {
           pctOfBar = this._logTransform(pctOfBar);
           break;
       }
-      var value = (this.options.end - this.options.start) * pctOfBar + this.options.start;
+      var value = (this.options.end - this.options.start) * pctOfBar + parseFloat(this.options.start);
 
       return value;
     }
@@ -394,6 +401,12 @@ var Slider = function (_Plugin) {
 
       var isDbl = this.options.doubleSided;
 
+      //this is for single-handled vertical sliders, it adjusts the value to account for the slider being "upside-down"
+      //for click and drag events, it's weird due to the scale(-1, 1) css property
+      if (this.options.vertical && !noInvert) {
+        location = this.options.end - location;
+      }
+
       if (isDbl) {
         //this block is to prevent 2 handles from crossing eachother. Could/should be improved.
         if (this.handles.index($hndl) === 0) {
@@ -403,12 +416,6 @@ var Slider = function (_Plugin) {
           var h1Val = parseFloat(this.$handle.attr('aria-valuenow'));
           location = location <= h1Val ? h1Val + this.options.step : location;
         }
-      }
-
-      //this is for single-handled vertical sliders, it adjusts the value to account for the slider being "upside-down"
-      //for click and drag events, it's weird due to the scale(-1, 1) css property
-      if (this.options.vertical && !noInvert) {
-        location = this.options.end - location;
       }
 
       var _this = this,
@@ -475,7 +482,7 @@ var Slider = function (_Plugin) {
       //because we don't know exactly how the handle will be moved, check the amount of time it should take to move.
       var moveTime = this.$element.data('dragging') ? 1000 / 60 : this.options.moveTime;
 
-      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__foundation_util_motion__["Move"])(moveTime, $hndl, function () {
+      Object(__WEBPACK_IMPORTED_MODULE_2__foundation_util_motion__["Move"])(moveTime, $hndl, function () {
         // adjusting the left/top property of the handle, based on the percentage calculated above
         // if movement isNaN, that is because the slider is hidden and we cannot determine handle width,
         // fall back to next best guess.
@@ -515,7 +522,7 @@ var Slider = function (_Plugin) {
     key: '_setInitAttr',
     value: function _setInitAttr(idx) {
       var initVal = idx === 0 ? this.options.initialStart : this.options.initialEnd;
-      var id = this.inputs.eq(idx).attr('id') || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["GetYoDigits"])(6, 'slider');
+      var id = this.inputs.eq(idx).attr('id') || Object(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["GetYoDigits"])(6, 'slider');
       this.inputs.eq(idx).attr({
         'id': id,
         'max': this.options.end,
@@ -599,7 +606,7 @@ var Slider = function (_Plugin) {
         value = this._value(offsetPct);
 
         // turn everything around for RTL, yay math!
-        if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["rtl"])() && !this.options.vertical) {
+        if (Object(__WEBPACK_IMPORTED_MODULE_3__foundation_util_core__["rtl"])() && !this.options.vertical) {
           value = this.options.end - value;
         }
 
@@ -1005,7 +1012,7 @@ Triggers.Listeners.Basic = {
     var animation = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).data('closable');
 
     if (animation !== '') {
-      Foundation.Motion.animateOut(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this), animation, function () {
+      __WEBPACK_IMPORTED_MODULE_1__foundation_util_motion__["Motion"].animateOut(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(this), animation, function () {
         __WEBPACK_IMPORTED_MODULE_0_jquery___default()(this).trigger('closed.zf');
       });
     } else {
@@ -1040,7 +1047,7 @@ Triggers.Initializers.addToggleListener = function ($elem) {
 // Elements with [data-closable] will respond to close.zf.trigger events.
 Triggers.Initializers.addCloseableListener = function ($elem) {
   $elem.off('close.zf.trigger', Triggers.Listeners.Basic.closeableListener);
-  $elem.on('close.zf.trigger', '[data-closeable]', Triggers.Listeners.Basic.closeableListener);
+  $elem.on('close.zf.trigger', '[data-closeable], [data-closable]', Triggers.Listeners.Basic.closeableListener);
 };
 
 // Elements with [data-toggle-focus] will respond to coming in and out of focus
@@ -1080,10 +1087,9 @@ Triggers.Listeners.Global = {
       _this.triggerHandler('close.zf.trigger', [_this]);
     });
   }
-};
 
-// Global, parses whole document.
-Triggers.Initializers.addClosemeListener = function (pluginName) {
+  // Global, parses whole document.
+};Triggers.Initializers.addClosemeListener = function (pluginName) {
   var yetiBoxes = __WEBPACK_IMPORTED_MODULE_0_jquery___default()('[data-yeti-box]'),
       plugNames = ['dropdown', 'tooltip', 'reveal'];
 
@@ -1219,14 +1225,6 @@ Triggers.init = function ($, Foundation) {
   }
 };
 
-
-
-/***/ }),
-
-/***/ 94:
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(28);
 
 
 /***/ })

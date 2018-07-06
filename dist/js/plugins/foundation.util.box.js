@@ -33,9 +33,6 @@
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
 /******/
-/******/ 	// identity function for calling harmony imports with the correct context
-/******/ 	__webpack_require__.i = function(value) { return value; };
-/******/
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
@@ -63,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 100);
+/******/ 	return __webpack_require__(__webpack_require__.s = 83);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -75,14 +72,6 @@ module.exports = {Foundation: window.Foundation};
 
 /***/ }),
 
-/***/ 100:
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(34);
-
-
-/***/ }),
-
 /***/ 3:
 /***/ (function(module, exports) {
 
@@ -90,14 +79,22 @@ module.exports = {rtl: window.Foundation.rtl, GetYoDigits: window.Foundation.Get
 
 /***/ }),
 
-/***/ 34:
+/***/ 83:
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(84);
+
+
+/***/ }),
+
+/***/ 84:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__foundation_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__foundation_core___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__foundation_core__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_box__ = __webpack_require__(64);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__foundation_util_box__ = __webpack_require__(85);
 
 
 
@@ -105,7 +102,7 @@ __WEBPACK_IMPORTED_MODULE_0__foundation_core__["Foundation"].Box = __WEBPACK_IMP
 
 /***/ }),
 
-/***/ 64:
+/***/ 85:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -122,19 +119,18 @@ var Box = {
   GetDimensions: GetDimensions,
   GetOffsets: GetOffsets,
   GetExplicitOffsets: GetExplicitOffsets
-};
 
-/**
- * Compares the dimensions of an element to a container and determines collision events with container.
- * @function
- * @param {jQuery} element - jQuery object to test for collisions.
- * @param {jQuery} parent - jQuery object to use as bounding container.
- * @param {Boolean} lrOnly - set to true to check left and right values only.
- * @param {Boolean} tbOnly - set to true to check top and bottom values only.
- * @default if no parent object passed, detects collisions with `window`.
- * @returns {Boolean} - true if collision free, false if a collision in any direction.
- */
-function ImNotTouchingYou(element, parent, lrOnly, tbOnly, ignoreBottom) {
+  /**
+   * Compares the dimensions of an element to a container and determines collision events with container.
+   * @function
+   * @param {jQuery} element - jQuery object to test for collisions.
+   * @param {jQuery} parent - jQuery object to use as bounding container.
+   * @param {Boolean} lrOnly - set to true to check left and right values only.
+   * @param {Boolean} tbOnly - set to true to check top and bottom values only.
+   * @default if no parent object passed, detects collisions with `window`.
+   * @returns {Boolean} - true if collision free, false if a collision in any direction.
+   */
+};function ImNotTouchingYou(element, parent, lrOnly, tbOnly, ignoreBottom) {
   return OverlapArea(element, parent, lrOnly, tbOnly, ignoreBottom) === 0;
 };
 
@@ -181,7 +177,7 @@ function OverlapArea(element, parent, lrOnly, tbOnly, ignoreBottom) {
  * @returns {Object} - nested object of integer pixel values
  * TODO - if element is window, return only those values.
  */
-function GetDimensions(elem, test) {
+function GetDimensions(elem) {
   elem = elem.length ? elem[0] : elem;
 
   if (elem === window || elem === document) {
@@ -238,9 +234,9 @@ function GetOffsets(element, anchor, position, vOffset, hOffset, isOverflow) {
   console.log("NOTE: GetOffsets is deprecated in favor of GetExplicitOffsets and will be removed in 6.5");
   switch (position) {
     case 'top':
-      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__foundation_util_core__["rtl"])() ? GetExplicitOffsets(element, anchor, 'top', 'left', vOffset, hOffset, isOverflow) : GetExplicitOffsets(element, anchor, 'top', 'right', vOffset, hOffset, isOverflow);
+      return Object(__WEBPACK_IMPORTED_MODULE_0__foundation_util_core__["rtl"])() ? GetExplicitOffsets(element, anchor, 'top', 'left', vOffset, hOffset, isOverflow) : GetExplicitOffsets(element, anchor, 'top', 'right', vOffset, hOffset, isOverflow);
     case 'bottom':
-      return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__foundation_util_core__["rtl"])() ? GetExplicitOffsets(element, anchor, 'bottom', 'left', vOffset, hOffset, isOverflow) : GetExplicitOffsets(element, anchor, 'bottom', 'right', vOffset, hOffset, isOverflow);
+      return Object(__WEBPACK_IMPORTED_MODULE_0__foundation_util_core__["rtl"])() ? GetExplicitOffsets(element, anchor, 'bottom', 'left', vOffset, hOffset, isOverflow) : GetExplicitOffsets(element, anchor, 'bottom', 'right', vOffset, hOffset, isOverflow);
     case 'center top':
       return GetExplicitOffsets(element, anchor, 'top', 'center', vOffset, hOffset, isOverflow);
     case 'center bottom':
@@ -273,7 +269,7 @@ function GetOffsets(element, anchor, position, vOffset, hOffset, isOverflow) {
       break;
     default:
       return {
-        left: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__foundation_util_core__["rtl"])() ? $anchorDims.offset.left - $eleDims.width + $anchorDims.width - hOffset : $anchorDims.offset.left + hOffset,
+        left: Object(__WEBPACK_IMPORTED_MODULE_0__foundation_util_core__["rtl"])() ? $anchorDims.offset.left - $eleDims.width + $anchorDims.width - hOffset : $anchorDims.offset.left + hOffset,
         top: $anchorDims.offset.top + $anchorDims.height + vOffset
       };
 

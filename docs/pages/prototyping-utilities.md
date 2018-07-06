@@ -7,9 +7,9 @@ sass:
 
 <h4><strong>Prototype to Production</strong></h4>
 
-Prototyping allows us to see problems more clearly—and often earlier—in the development process. Designs in sketches or wireframes only get us so far in understanding the behavior, feasibility, and cost (time or resources) of implimentation. Prototyping processes foster collaboration where designers and developers work closely together find better solutions.
+Prototyping allows us to see problems more clearly—and often earlier—in the development process. Designs in sketches or wireframes only get us so far in understanding the behavior, feasibility, and cost (time or resources) of implementation. Prototyping processes foster collaboration where designers and developers work closely together find better solutions.
 
-Sometimes prototype code is meant the be thrown away, and that's ok. While in early stage development it's extremely valuable to get ideas and interactions up and shared with stakeholders for scruitiny. This is how ideas get fleshed out and improved. It's not code we're delivering, it's a solution to a problem. Get the idea out, get feedback, iterate, repeat. Then when all parties are satisfied the right approach is being taken, go back to clean it up and refactor.
+Sometimes prototype code is meant to be thrown away, and that's ok. While in early stage development it's extremely valuable to get ideas and interactions up and shared with stakeholders for scrutiny. This is how ideas get fleshed out and improved. It's not code we're delivering, it's a solution to a problem. Get the idea out, get feedback, iterate, repeat. Then when all parties are satisfied the right approach is being taken, go back to clean it up and refactor.
 
 Foundation's Prototyping Utilities help you build coded prototypes from scratch ultra-fast. This allows you to get to right answer faster through feedback and experimentation. From positioning to visual styles, there are a range of utilities to choose from. Every Utility has a mixin, so you can use your own custom classes or swap classes for mixins in production for cleaner markup.
 
@@ -65,6 +65,7 @@ You can instead import only the specific utility classes that you need. To make 
 @include foundation-prototype-rounded;
 @include foundation-prototype-bordered;
 @include foundation-prototype-shadow;
+@include foundation-prototype-arrow;
 @include foundation-prototype-separator;
 @include foundation-prototype-overflow;
 @include foundation-prototype-display;
@@ -75,7 +76,30 @@ You can instead import only the specific utility classes that you need. To make 
 @include foundation-prototype-spacing;
 ```
 
-Looking for more customization including **responsive breakpoints?** Click here for the [Sass Reference](#sass-reference)
+Looking for more customization? Click here for the [Sass Reference](#sass-reference)
+
+---
+
+## Responsive breakpoints
+
+<div class="alert callout">
+  <p>Responsive breakpoints is disabled by default.</p>
+</div>
+
+These prototype classes also have an optional mobile first responsive classes  so that setting a class will apply to the small breakpoint and large unless overridden by a class for a larger breakpoint. <br>
+You can easily enable these classes by setting `$global-prototype-breakpoints` to `true`.
+
+```html
+<p class="medium-text-uppercase">This text will be uppercase for medium and up.</p>
+<p class="large-text-lowercase">This text will be lowercase for large breakpoint.</p>
+```
+
+You can also customise things by choosing to add responsive breakpoints only for specific prototype helpers that you would need as responsive classes. <br>
+For example, text transformation classes have a breakpoint variable `$prototype-transformation-breakpoints` which is set to `$global-prototype-breakpoints` which is set to `false` by default. For enabling responsive breakpoints for text transformation classes, simply set:
+
+```scss
+$prototype-transformation-breakpoints: true;
+```
 
 ---
 
@@ -97,11 +121,24 @@ These `.radius`, `.rounded`, `.bordered` & `.shadow` classes can be used indepen
 <button type="button" class="button radius bordered shadow warning">Warning</button>
 ```
 
+#### Switches
+
+Please note that you need to add `rounded` class with `switch-paddle` and not `switch`.
+
+```html_example
+<div class="switch">
+  <input class="switch-input" id="exampleSwitch" type="checkbox" name="exampleSwitch">
+  <label class="switch-paddle rounded" for="exampleSwitch">
+    <span class="show-for-sr">Download Kittens</span>
+  </label>
+</div>
+```
+
 #### Cards
 
 ```html
 <div class="radius bordered shadow card">
-  <img src="http://placehold.it/500x250">
+  <img src="https://placehold.it/500x250">
   <div class="card-divider">
     Styled Card
   </div>
@@ -203,12 +240,30 @@ These `.radius`, `.rounded`, `.bordered` & `.shadow` classes can be used indepen
 #### Images
 
 ```html
-<img src="http://placehold.it/150x150" class="radius">
+<img src="https://placehold.it/150x150" class="radius">
 ```
 
 <div class="docs-code-live margin-bottom-1">
-	<img src="http://placehold.it/150x150" class="radius">
+	<img src="https://placehold.it/150x150" class="radius">
 </div>
+
+---
+
+## Arrow Utility
+
+Mostly used as dropdown arrows for navigation.
+
+```html
+<div class="arrow-down"></div>
+<div class="arrow-up"></div>
+<div class="arrow-right"></div>
+<div class="arrow-left"></div>
+```
+
+<div class="arrow-down display-inline-block margin-right-1"></div>
+<div class="arrow-up display-inline-block margin-right-1"></div>
+<div class="arrow-right display-inline-block margin-right-1"></div>
+<div class="arrow-left display-inline-block"></div>
 
 ---
 
@@ -255,37 +310,6 @@ You can use font styling to style your text. You can change the font styling by 
 
 ---
 
-## Typescale
-
-Adjust font-size by overriding an element’s default size. This can be useful to size a `<p>` or `<h1>` through `<h6>` using Foundation's existing header sizes.
-
-<div class="callout primary">
-  <p><strong>Especially useful because:</strong> It's important to avoid skipping heading levels when structuring your document, as it confuses screen readers. For example, after using an <code>&lt;h2&gt;</code> in your code, the next heading used should be either <code>&lt;h2&gt;</code> or <code>&lt;h3&gt;</code>. If you need a heading to look bigger or smaller to match a specific style, use CSS to override the default size.</p>
-</div>
-
-For headers:
-
-```html
-<h2 class="h1">Lorem Ipsum Dolor</h2>
-<h3 class="h2">Lorem Ipsum Dolor</h3>
-<h4 class="h3">Lorem Ipsum Dolor</h4>
-<h5 class="h4">Lorem Ipsum Dolor</h5>
-<h6 class="h5">Lorem Ipsum Dolor</h6>
-```
-
-For text:
-
-```html_example
-<p class="h1">Lorem Ipsum Dolor</p>
-<p class="h2">Lorem Ipsum Dolor</p>
-<p class="h3">Lorem Ipsum Dolor</p>
-<p class="h4">Lorem Ipsum Dolor</p>
-<p class="h5">Lorem Ipsum Dolor</p>
-<p class="h6">Lorem Ipsum Dolor</p>
-```
-
----
-
 ## List Styling
 
 <div class="primary callout">
@@ -324,7 +348,7 @@ You can include an image with visually hidden helper text for the sake of access
 
 ```html
 <a href="#" class="text-hide">
-  <img src="http://placehold.it/100x30" alt="zurb logo">
+  <img src="https://placehold.it/100x30" alt="zurb logo">
   Zurb <!-- Logo Text  -->
 </a>
 ```
@@ -757,15 +781,15 @@ These Rotate mixins lets you rotate an element to a certain degree. Clockwise is
 }
 
 .bar {
-	@include rotateX(60); // 60 Degree
+	@include rotateX(60); // 60 Degree on X axis
 }
 
 .baz {
-	@include rotateY(90); // 90 Degree
+	@include rotateY(90); // 90 Degree on Y axis
 }
 
 .shaz {
-	@include rotateZ(120); // 120 Degree
+	@include rotateZ(120); // 120 Degree on Z axis
 }
 ```
 

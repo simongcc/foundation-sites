@@ -9,6 +9,11 @@ tags:
   - block grid
 ---
 
+<div class="callout training-callout">
+  <p>Become a master of the Foundation Grids to create complex layouts faster and with less code. The new XY Grid is the newest and most powerful version. Stay up-to-date with all the new features in Foundation 6.4 and learn how to migrate to the XY Grid with our online webinar training. You’ll also learn all the useful UI components and Foundation JavaScript to really crush your projects.</p>
+  <a href="http://zurb.com/university/foundation-intro" target="_blank">Get registered for an upcomming Foundation training →</a>
+</div>
+
 ## Basics
 
 Start by adding an element with a class of `.row`. This will create a horizontal block to contain vertical columns. Then add elements with a `.column` class within that row. Specify the widths of each column with the `.small-#`, `.medium-#`, and `.large-#` classes.
@@ -20,7 +25,7 @@ Start by adding an element with a class of `.row`. This will create a horizontal
 </p>
 
 <div class="primary callout">
-  <p>By default `.column` has an alias `.columns` (see the <a href="http://localhost:3000/grid.html#sass-reference">`$grid-column-alias` option</a>) &mdash;the only difference is grammar.</p>
+  <p>By default `.column` has an alias `.columns` (see the <a href="#sass-reference">`$grid-column-alias` option</a>) &mdash;the only difference is grammar.</p>
   <p>Disabling the alias can reduce the Foundation CSS file size from 3 to 5%. It is recommended if the alias is not used.</p>
 </div>
 
@@ -536,22 +541,22 @@ Block grids are a shorthand way to create equally-sized columns. Add a class of 
 ```html_example
 <div class="row small-up-2 medium-up-3 large-up-4">
   <div class="column column-block">
-    <img src="//placehold.it/600x600" class="thumbnail" alt="">
+    <img src="https://placehold.it/600x600" class="thumbnail" alt="">
   </div>
   <div class="column column-block">
-    <img src="//placehold.it/600x600" class="thumbnail" alt="">
+    <img src="https://placehold.it/600x600" class="thumbnail" alt="">
   </div>
   <div class="column column-block">
-    <img src="//placehold.it/600x600" class="thumbnail" alt="">
+    <img src="https://placehold.it/600x600" class="thumbnail" alt="">
   </div>
   <div class="column column-block">
-    <img src="//placehold.it/600x600" class="thumbnail" alt="">
+    <img src="https://placehold.it/600x600" class="thumbnail" alt="">
   </div>
   <div class="column column-block">
-    <img src="//placehold.it/600x600" class="thumbnail" alt="">
+    <img src="https://placehold.it/600x600" class="thumbnail" alt="">
   </div>
   <div class="column column-block">
-    <img src="//placehold.it/600x600" class="thumbnail" alt="">
+    <img src="https://placehold.it/600x600" class="thumbnail" alt="">
   </div>
 </div>
 ```
@@ -662,6 +667,7 @@ Refer to the Sass documentation below to learn how each mixin works.
   }
 }
 ```
+
 ### Custom Block Grid
 
 Use the `grid-layout()` mixin to create your own block grid.
